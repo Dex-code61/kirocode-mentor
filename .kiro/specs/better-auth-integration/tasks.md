@@ -5,6 +5,8 @@
 
 
 
+
+
   - Install better-auth and required dependencies (better-auth, better-auth/adapters/prisma, better-auth/react, better-auth/client/plugins)
   - Create environment variables for OAuth providers and encryption keys
   - Configure better-auth server instance with Prisma adapter, OAuth providers, and security settings
