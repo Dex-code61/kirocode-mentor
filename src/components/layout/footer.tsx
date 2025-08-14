@@ -1,6 +1,7 @@
 import { Code } from "lucide-react";
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
+import ThemeSwitcher from "../custom/theme-switcher";
 
 const footerLinks = {
   product: [
@@ -35,7 +36,7 @@ export function Footer() {
             </p>
             <div className="flex items-center space-x-2">
               <span className="text-sm text-muted-foreground">Theme:</span>
-              <ModeToggle />
+              <ThemeSwitcher />
             </div>
           </div>
           

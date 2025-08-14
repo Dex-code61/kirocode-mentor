@@ -9,13 +9,15 @@ interface CurrentLearningPathProps {
   module?: string;
   progress?: number;
   status?: string;
+  onContinue?: () => void;
 }
 
 export function CurrentLearningPath({ 
   title = "React Advanced Patterns",
   module = "Module 3: Custom Hooks & Context",
   progress = 65,
-  status = "In Progress"
+  status = "In Progress",
+  onContinue
 }: CurrentLearningPathProps) {
   return (
     <Card>

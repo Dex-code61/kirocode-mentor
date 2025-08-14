@@ -11,6 +11,7 @@ import { RecentAchievements } from '@/components/dashboard/recent-achievements';
 import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
 import { Suspense } from 'react';
 import { getServerSession } from '@/lib/auth-server';
+import { CurrentLearningPathWrapper } from '@/components/dashboard/current-learning-path-wrapper';
 
 export default async function DashboardPage() {
   const session = await getServerSession()
@@ -20,8 +21,6 @@ export default async function DashboardPage() {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <DashboardHeader />
-
       <div className="container mx-auto px-4 py-8">
         <WelcomeSection
           userName={session.user.name}
@@ -31,7 +30,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            <CurrentLearningPath />
+            <CurrentLearningPathWrapper />
             <RecentActivity />
             <AIRecommendations />
           </div>

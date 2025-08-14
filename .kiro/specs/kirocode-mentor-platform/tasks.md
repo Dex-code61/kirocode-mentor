@@ -26,6 +26,10 @@
 
 - [ ] 3. Create basic authentication and user management system
 
+
+
+
+
   - Implement user registration and login functionality
   - Create user profile management components
   - Set up JWT-based authentication with secure token handling

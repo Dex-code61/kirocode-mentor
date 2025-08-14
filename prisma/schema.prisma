@@ -47,7 +47,7 @@ model UserProfile {
   lastName     String?
   avatar       String?
   bio          String?
-  currentLevel String   @default("beginner")
+  currentLevel UserLevel   @default(BEGINNER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -57,13 +57,21 @@ model UserProfile {
   @@map("user_profiles")
 }
 
+
+enum UserLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
 // Learning models
 
 model Exercise {
   id          String   @id @default(cuid())
   title       String
   description String
-  type        String // 'coding', 'quiz', 'project', 'debugging'
+  type        ExerciceType @default(CODING)
   difficulty  Int      @default(1)
   content     Json // Exercise content and test cases
   createdAt   DateTime @default(now())
@@ -75,11 +83,17 @@ model Exercise {
   @@map("exercises")
 }
 
+enum ExerciceType {
+  CODING
+  QUIZ
+  PROJECT
+  DEBUGGING
+}
 model UserProgress {
   id           String   @id @default(cuid())
   userId       String
   exerciseId   String
-  status       String   @default("not_started") // 'not_started', 'in_progress', 'completed', 'mastered'
+  status       ProgressStatus   @default(NOT_STARTED) // 'not_started', 'in_progress', 'completed', 'mastered'
   attempts     Int      @default(0)
   timeSpent    Int      @default(0) // in seconds
   masteryScore Float    @default(0.0)
