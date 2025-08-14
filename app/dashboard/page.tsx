@@ -1,7 +1,5 @@
-'use client';
 
-import { useSession } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { WelcomeSection } from '@/components/dashboard/welcome-section';
 import { CurrentLearningPath } from '@/components/dashboard/current-learning-path';
@@ -11,22 +9,17 @@ import { StatsOverview } from '@/components/dashboard/stats-overview';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentAchievements } from '@/components/dashboard/recent-achievements';
 import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
+import { Suspense } from 'react';
+import { getServerSession } from '@/lib/auth-server';
 
-export default function DashboardPage() {
-  const { data: session, isPending } = useSession();
-  const router = useRouter();
-
-  if (isPending) {
-    return <DashboardSkeleton />;
-  }
-
-  if (!session) {
-    router.push('/auth/signin');
-    return null;
-  }
+export default async function DashboardPage() {
+  const session = await getServerSession()
+  
+  if(!session) redirect("/auth/signin")
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <Suspense fallback={<DashboardSkeleton />}>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <DashboardHeader />
 
       <div className="container mx-auto px-4 py-8">
@@ -52,5 +45,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+    </Suspense>
   );
 }
