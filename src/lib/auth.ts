@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { twoFactor } from 'better-auth/plugins';
 import prisma from './prisma';
+import { sendMail } from './resend';
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -13,6 +14,18 @@ export const auth = betterAuth({
     autoSignIn: false,
     minPasswordLength: 8,
     maxPasswordLength: 128,
+    sendVerificationEmail: true,
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }) => {
+        const html = `<h1>Verify your email</h1><p>Click <a href="${url}">here</a> to verify your email.</p>`
+        await sendMail(user.email, "Email verification !", html)
+    },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+    required: true,
+    maxAge: 60 * 60 * 15,
+    expiresIn: 60 * 60 * 15,
   },
   socialProviders: {
     google: {

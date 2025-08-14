@@ -13,24 +13,22 @@ datasource db {
 // User models
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Relations
   profile  UserProfile?
   progress UserProgress[]
   sessions CollaborativeSession[]
-
-  name          String
-  emailVerified Boolean
-  image         String?
-  accounts      Account[]
+  accounts Account[]
+  Session  Session[]
 
   @@map("users")
-  Session Session[]
 }
 
 model UserProfile {
