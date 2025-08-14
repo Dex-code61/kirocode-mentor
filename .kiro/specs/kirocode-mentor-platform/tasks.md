@@ -2,9 +2,12 @@
 
 - [ ] 1. Setup project foundation and core infrastructure
 
-  - Initialize Next.js 14 project with TypeScript and essential dependencies
-  - Configure TailwindCSS, ESLint, and development environment
-  - Set up project structure with proper folder organization
+  - Initialize Next.js 14 project with TypeScript and App Router
+  - Install and configure essential dependencies: Prisma, TailwindCSS, Framer Motion, Monaco Editor
+  - Set up ESLint, Prettier, and development environment with proper TypeScript configuration
+  - Create project structure: app/ at root level, src/ folder with src/components, src/lib, src/types, src/hooks, src/utils, and prisma/ at root level
+  - Configure environment variables for database, Redis, and Kiro SDK
+  - Set up package.json scripts for development, build, and database operations
   - _Requirements: 5.1, 6.4_
 
 - [ ] 2. Implement core data models and TypeScript interfaces
