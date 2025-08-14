@@ -1,0 +1,151 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User models
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  profile  UserProfile?
+  progress UserProgress[]
+  sessions CollaborativeSession[]
+
+  name          String
+  emailVerified Boolean
+  image         String?
+  accounts      Account[]
+
+  @@map("users")
+  Session Session[]
+}
+
+model UserProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  firstName    String?
+  lastName     String?
+  avatar       String?
+  bio          String?
+  currentLevel String   @default("beginner")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+// Learning models
+
+model Exercise {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String // 'coding', 'quiz', 'project', 'debugging'
+  difficulty  Int      @default(1)
+  content     Json // Exercise content and test cases
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  progress UserProgress[]
+
+  @@map("exercises")
+}
+
+model UserProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  exerciseId   String
+  status       String   @default("not_started") // 'not_started', 'in_progress', 'completed', 'mastered'
+  attempts     Int      @default(0)
+  timeSpent    Int      @default(0) // in seconds
+  masteryScore Float    @default(0.0)
+  lastAccessed DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, exerciseId])
+  @@map("user_progress")
+}
+
+// Collaboration models
+
+model CollaborativeSession {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  isActive    Boolean  @default(true)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("collaborative_sessions")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
