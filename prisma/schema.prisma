@@ -13,20 +13,29 @@ datasource db {
 // User models
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
+  id            String   @id @default(cuid())
+  email         String   @unique
   name          String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean  @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
-  profile  UserProfile?
-  progress UserProgress[]
-  sessions CollaborativeSession[]
-  accounts Account[]
-  Session  Session[]
+  profile         UserProfile?
+  progress        UserProgress[]
+  moduleProgress  ModuleProgress[]
+  sessions        CollaborativeSession[]
+  accounts        Account[]
+  Session         Session[]
+  learningProfile LearningProfile?
+  skillAssessment SkillAssessment?
+  preferences     UserPreferences?
+  enrollments     Enrollment[]
+  codeSubmissions CodeSubmission[]
+  achievements    UserAchievement[]
+  mentorSessions  MentorSession[]
+  feedback        MentorFeedback[]
 
   @@map("users")
 }
@@ -146,4 +155,480 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model LearningProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Style d'apprentissage détecté par IA
+  learningStyle LearningStyle // VISUAL, KINESTHETIC, AUDITORY, READING
+  pace          LearningPace // SLOW, NORMAL, FAST, ADAPTIVE
+  complexity    ComplexityLevel // BEGINNER, INTERMEDIATE, ADVANCED, EXPERT
+
+  // Métriques comportementales
+  focusTime     Int      @default(0) // minutes par session
+  errorPatterns Json // patterns d'erreurs communes
+  strengths     String[] // domaines de force
+  weaknesses    String[] // domaines à améliorer
+
+  // Personnalisation IA
+  kiroPersonality Json // Configuration personnalité Kiro
+  adaptations     Json // Adaptations d'interface/contenu
+
+  user      User     @relation(fields: [userId], references: [id])
+  updatedAt DateTime @updatedAt
+
+  @@map("learning_profiles")
+}
+
+model LearningPath {
+  id             String     @id @default(cuid())
+  title          String
+  description    String
+  category       Category
+  difficulty     Difficulty
+  estimatedHours Int
+
+  // Contenu dynamique généré par Kiro
+  curriculum         Json // Structure du curriculum
+  prerequisites      String[] // IDs des paths prérequis
+  learningObjectives String[]
+
+  // Adaptabilité
+  isAdaptive  Boolean @default(true)
+  kiroPrompts Json // Prompts pour génération de contenu
+
+  // Relations
+  modules     Module[]
+  enrollments Enrollment[]
+
+  // Métriques
+  totalEnrollments Int    @default(0)
+  averageRating    Float?
+  completionRate   Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("learning_paths")
+}
+
+model Module {
+  id          String     @id @default(cuid())
+  title       String
+  description String
+  order       Int
+  type        ModuleType // THEORY, PRACTICE, PROJECT, ASSESSMENT
+
+  learningPathId String
+
+  // Contenu adaptatif
+  content          Json // Contenu multi-format (text, video, interactive)
+  kiroInstructions Json // Instructions pour Kiro
+  codeExamples     CodeExample[]
+  challenges       Challenge[]
+
+  // Configuration d'apprentissage
+  estimatedTime Int // minutes
+  difficulty    Difficulty
+  skills        String[] // compétences enseignées
+
+  learningPath LearningPath     @relation(fields: [learningPathId], references: [id])
+  progress     ModuleProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("modules")
+}
+
+model Challenge {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  type        ChallengeType // CODING, DEBUGGING, ARCHITECTURE, CODE_REVIEW
+
+  moduleId String
+
+  // Spécifications du défi
+  requirements Json // Exigences techniques
+  startingCode String? // Code de départ
+  solution     String? // Solution de référence
+  testCases    Json // Cas de test automatisés
+
+  // Génération dynamique par Kiro
+  kiroSpecs Json // Spécifications pour Kiro
+  isDynamic Boolean @default(false) // Généré à la volée
+
+  // Gamification
+  points Int      @default(0)
+  badges String[] // Badges débloquables
+
+  module      Module           @relation(fields: [moduleId], references: [id])
+  submissions CodeSubmission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("challenges")
+}
+
+model CodeSubmission {
+  id          String @id @default(cuid())
+  userId      String
+  challengeId String
+
+  // Code soumis
+  code     String
+  language ProgrammingLanguage
+
+  // Analyse IA par Kiro
+  kiroAnalysis Json // Feedback détaillé de Kiro
+  score        Float? // Score de 0 à 100
+  improvements Json // Suggestions d'amélioration
+  codeQuality  Json // Métriques qualité (lisibilité, performance, etc.)
+
+  // Résultats d'exécution
+  testResults   Json // Résultats des tests automatisés
+  executionTime Int? // Temps d'exécution en ms
+  memoryUsage   Int? // Utilisation mémoire
+
+  // Status
+  status   SubmissionStatus // PENDING, ANALYZING, COMPLETED, FAILED
+  attempts Int              @default(1)
+
+  user      User      @relation(fields: [userId], references: [id])
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("code_submissions")
+}
+
+model MentorSession {
+  id     String @id @default(cuid())
+  userId String
+
+  // Session avec Kiro
+  sessionType MentorSessionType // CODE_REVIEW, DEBUGGING, EXPLANATION, CAREER_ADVICE
+  topic       String
+  context     Json // Contexte de la session
+
+  // Conversation
+  messages        Json // Historique des messages
+  kiroPersonality String // Personnalité Kiro pour cette session
+
+  // Résultats
+  insights    Json // Insights générés
+  actionItems String[] // Actions recommandées
+  resources   Json // Ressources suggérées
+
+  // Métriques
+  duration     Int // Durée en minutes
+  satisfaction Int? // Note de satisfaction 1-5
+
+  user User @relation(fields: [userId], references: [id])
+
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+
+  @@map("mentor_sessions")
+}
+
+model SkillAssessment {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Compétences évaluées
+  skills           Json // Map des compétences avec niveaux
+  strongAreas      String[] // Domaines de force
+  improvementAreas String[] // Domaines à améliorer
+
+  // Évaluation par Kiro
+  overallLevel        SkillLevel
+  kiroRecommendations Json // Recommandations personnalisées
+  nextSteps           String[] // Prochaines étapes suggérées
+
+  // Historique
+  previousAssessment String? // ID de l'évaluation précédente
+  progressTrend      TrendDirection // IMPROVING, STABLE, DECLINING
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  assessedAt DateTime @default(now())
+
+  @@map("skill_assessments")
+}
+
+// Modèles manquants
+
+model UserPreferences {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  // Préférences d'apprentissage
+  language      String @default("en")
+  timezone      String @default("UTC")
+  notifications Json // Préférences de notifications
+  theme         String @default("system")
+
+  // Préférences de contenu
+  preferredLanguages ProgrammingLanguage[]
+  difficultyLevel    Difficulty            @default(BEGINNER)
+  sessionDuration    Int                   @default(30) // minutes
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_preferences")
+}
+
+model Enrollment {
+  id             String @id @default(cuid())
+  userId         String
+  learningPathId String
+
+  // Status d'inscription
+  status   EnrollmentStatus @default(ACTIVE)
+  progress Float            @default(0.0) // Pourcentage de completion
+
+  // Dates
+  enrolledAt     DateTime  @default(now())
+  completedAt    DateTime?
+  lastAccessedAt DateTime  @default(now())
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningPath LearningPath @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, learningPathId])
+  @@map("enrollments")
+}
+
+model ModuleProgress {
+  id       String @id @default(cuid())
+  userId   String
+  moduleId String
+
+  // Progression
+  status         ProgressStatus @default(NOT_STARTED)
+  completionRate Float          @default(0.0)
+  timeSpent      Int            @default(0) // minutes
+
+  // Dates
+  startedAt      DateTime?
+  completedAt    DateTime?
+  lastAccessedAt DateTime  @default(now())
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+  @@map("module_progress")
+}
+
+model CodeExample {
+  id       String @id @default(cuid())
+  moduleId String
+
+  // Contenu de l'exemple
+  title       String
+  description String?
+  code        String
+  language    ProgrammingLanguage
+  explanation String?
+
+  // Métadonnées
+  difficulty Difficulty
+  tags       String[]
+  order      Int        @default(0)
+
+  // Relations
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("code_examples")
+}
+
+model UserAchievement {
+  id     String @id @default(cuid())
+  userId String
+
+  // Détails de l'achievement
+  type        AchievementType
+  title       String
+  description String
+  badgeUrl    String?
+  points      Int             @default(0)
+
+  // Contexte
+  relatedId String? // ID de l'élément lié (challenge, path, etc.)
+  metadata  Json? // Données additionnelles
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  earnedAt DateTime @default(now())
+
+  @@map("user_achievements")
+}
+
+model MentorFeedback {
+  id     String @id @default(cuid())
+  userId String
+
+  // Type de feedback
+  type    FeedbackType
+  context String // Contexte du feedback
+  content String // Contenu du feedback
+
+  // Métadonnées
+  relatedId       String? // ID de l'élément lié
+  kiroPersonality String? // Personnalité Kiro utilisée
+
+  // Évaluation
+  helpfulness Int? // Note de 1 à 5
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("mentor_feedback")
+}
+
+// Enums
+enum LearningStyle {
+  VISUAL
+  KINESTHETIC
+  AUDITORY
+  READING
+  MIXED
+}
+
+enum LearningPace {
+  SLOW
+  NORMAL
+  FAST
+  ADAPTIVE
+}
+
+enum ComplexityLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum Category {
+  FRONTEND
+  BACKEND
+  FULLSTACK
+  MOBILE
+  DATA_SCIENCE
+  DEVOPS
+  CYBERSECURITY
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum ModuleType {
+  THEORY
+  PRACTICE
+  PROJECT
+  ASSESSMENT
+  INTERACTIVE
+}
+
+enum ChallengeType {
+  CODING
+  DEBUGGING
+  ARCHITECTURE
+  CODE_REVIEW
+  SYSTEM_DESIGN
+}
+
+enum ProgrammingLanguage {
+  JAVASCRIPT
+  TYPESCRIPT
+  PYTHON
+  JAVA
+  CPP
+  RUST
+  GO
+}
+
+enum SubmissionStatus {
+  PENDING
+  ANALYZING
+  COMPLETED
+  FAILED
+  NEEDS_REVISION
+}
+
+enum MentorSessionType {
+  CODE_REVIEW
+  DEBUGGING
+  EXPLANATION
+  CAREER_ADVICE
+  PROJECT_PLANNING
+}
+
+enum SkillLevel {
+  NOVICE
+  COMPETENT
+  PROFICIENT
+  EXPERT
+  MASTER
+}
+
+enum TrendDirection {
+  IMPROVING
+  STABLE
+  DECLINING
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  MASTERED
+}
+
+enum AchievementType {
+  COMPLETION
+  STREAK
+  SKILL_MASTERY
+  COLLABORATION
+  SPEED
+  QUALITY
+  MILESTONE
+}
+
+enum FeedbackType {
+  CODE_REVIEW
+  GENERAL_GUIDANCE
+  ENCOURAGEMENT
+  CORRECTION
+  SUGGESTION
+  EXPLANATION
 }
