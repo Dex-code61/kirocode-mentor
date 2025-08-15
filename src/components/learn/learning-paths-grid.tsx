@@ -9,13 +9,16 @@ import {
 import EmptyState from './empty-state';
 import LearningPathCard from './learning-path-card';
 import { LearningPathsSkeleton } from './learning-paths-skeleton';
-import { useSearchParams } from 'next/navigation';
+import { unauthorized, useSearchParams } from 'next/navigation';
 import { useLearningPaths } from '@/queries/cursus.queries';
 import { CustomPagination } from '@/components/custom/custom-pagination';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { parseAsInteger, useQueryStates } from 'nuqs';
+import { useSession } from '@/lib/auth-client';
+import { toast } from 'sonner';
 
 export function LearningPathsGrid() {
+  const {isPending: isPendingUser, data: session} = useSession()
   const _searchParams = useSearchParams();
 
   const searchParams: learningPathSearchParams = {
@@ -26,12 +29,20 @@ export function LearningPathsGrid() {
     limit: 12,
   };
   
-  const { isPending, data, error } = useLearningPaths(searchParams);
+  const { isPending, data, error, refetch } = useLearningPaths(searchParams);
 
-  if (isPending) return <LearningPathsSkeleton />;
+  if (isPending || isPendingUser) return <LearningPathsSkeleton />;
 
   if (error) {
+    toast.error('Error loading learning paths', {
+      description: error.message,
+    });
     console.warn('Error loading learning paths:', error);
+    refetch()
+  }
+
+  if(!session){
+    unauthorized()
   }
 
   const result = data?.data || {
@@ -75,7 +86,7 @@ export function LearningPathsGrid() {
       {/* Learning paths grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {learningPaths.map((path: LearningPath) => (
-          <LearningPathCard key={path.id} learningPath={path} />
+          <LearningPathCard userId={session?.user.id} key={path.id} learningPath={path} />
         ))}
       </div>
 

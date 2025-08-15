@@ -1,10 +1,11 @@
 import { Suspense } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, unauthorized } from 'next/navigation'
 import { getLearningPathById } from '@/actions/cursus.actions'
 import { LearningPathHeader } from '@/components/learn/learning-path-header'
 import { LearningPathContent } from '@/components/learn/learning-path-content'
 import { LearningPathSidebar } from '@/components/learn/learning-path-sidebar'
 import { LearningPathSkeleton } from '@/components/learn/learning-path-skeleton'
+import { getServerSession } from '@/lib/auth-server'
 
 interface LearningPathPageProps {
   params: Promise<{
@@ -24,13 +25,22 @@ export default async function LearningPathPage({ params }: LearningPathPageProps
 }
 
 async function LearningPathPageContent({ pathId }: { pathId: string }) {
+
+  const session = await getServerSession()
+  if (!session) {
+    unauthorized()
+  }
+
   const result = await getLearningPathById({ pathId })
   
   if (!result?.data) {
     notFound()
   }
 
-  const learningPath = result.data
+  const isEnrolled = result.data.enrollments.some(
+    (enrollment) => enrollment.userId === session.user.id
+  )
+  const learningPath = {...result.data, isEnrolled }
 
   return (
     <div className="space-y-8">

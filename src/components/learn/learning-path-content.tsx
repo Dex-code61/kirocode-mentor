@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { BookOpen, Target, Code, Trophy, Clock, Zap } from 'lucide-react'
+import { moduleTypeColors, moduleTypeIcons } from '@/style'
 
 interface Module {
   id: string
@@ -36,22 +37,6 @@ interface LearningPathContentProps {
     modules: Module[]
     curriculum: any
   }
-}
-
-const moduleTypeIcons = {
-  THEORY: BookOpen,
-  PRACTICE: Target,
-  PROJECT: Code,
-  ASSESSMENT: Trophy,
-  INTERACTIVE: Zap,
-}
-
-const moduleTypeColors = {
-  THEORY: 'text-blue-600 bg-blue-100 dark:bg-blue-900 dark:text-blue-300',
-  PRACTICE: 'text-green-600 bg-green-100 dark:bg-green-900 dark:text-green-300',
-  PROJECT: 'text-purple-600 bg-purple-100 dark:bg-purple-900 dark:text-purple-300',
-  ASSESSMENT: 'text-orange-600 bg-orange-100 dark:bg-orange-900 dark:text-orange-300',
-  INTERACTIVE: 'text-pink-600 bg-pink-100 dark:bg-pink-900 dark:text-pink-300',
 }
 
 export function LearningPathContent({ learningPath }: LearningPathContentProps) {
@@ -159,7 +144,7 @@ export function LearningPathContent({ learningPath }: LearningPathContentProps) 
                         <div className="flex flex-wrap gap-2">
                           {module.skills.map((skill, skillIndex) => (
                             <Badge key={skillIndex} variant="secondary" className="text-xs">
-                              {skill}
+                              {skill.replaceAll("_", " ")}
                             </Badge>
                           ))}
                         </div>

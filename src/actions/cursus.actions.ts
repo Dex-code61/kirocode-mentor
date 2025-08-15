@@ -225,6 +225,11 @@ export const getAvailableLearningPaths = actionClient
           description: true,
           category: true,
           difficulty: true,
+          enrollments: {
+            select: {
+              userId: true
+            }
+          },
           estimatedHours: true,
           totalEnrollments: true,
           averageRating: true,

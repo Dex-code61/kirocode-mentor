@@ -9,41 +9,17 @@ import {
 } from '@/components/ui/card';
 import { Clock, Users, Star, ArrowRight } from 'lucide-react';
 import { LearningPath } from '@/types/learningpath.types';
+import { categoryColors, difficultyColors } from '@/style';
 
 
 interface LearningPathCardProps {
   learningPath: LearningPath;
+  userId: string;
 }
-
-const categoryColors = {
-  FRONTEND:
-    'text-blue-800 bg-blue-500/30 dark:text-blue-300 border border-blue-500',
-  BACKEND:
-    'text-green-800 bg-green-500/30 dark:text-green-300 border border-green-500',
-  FULLSTACK:
-    'text-purple-800 bg-purple-500/30 dark:text-purple-300 border border-purple-500',
-  MOBILE:
-    'text-orange-800 bg-orange-500/30 dark:text-orange-300 border border-orange-500',
-  DATA_SCIENCE:
-    'text-pink-800 bg-pink-500/30 dark:text-pink-300 border border-pink-500',
-  DEVOPS:
-    'text-yellow-800 bg-yellow-500/30 dark:text-yellow-300 border border-yellow-500',
-  CYBERSECURITY:
-    'text-red-800 bg-red-500/30 dark:text-red-300 border border-red-500',
-};
-
-const difficultyColors = {
-  BEGINNER:
-    'text-blue-800 dark:text-blue-300 bg-blue-500/30 border border-blue-500',
-  INTERMEDIATE:
-    'text-yellow-800 dark:text-yellow-300 bg-yellow-500/30 border border-yellow-500',
-  ADVANCED:
-    'text-orange-800 dark:text-orange-300 bg-orange-500/30 border border-orange-500',
-  EXPERT: 'text-red-800 dark:text-red-300 bg-red-500/30 border border-red-500',
-};
 
 export default function LearningPathCard({
   learningPath,
+  userId
 }: LearningPathCardProps) {
   const categoryColor =
     categoryColors[learningPath.category as keyof typeof categoryColors] ||
@@ -53,6 +29,9 @@ export default function LearningPathCard({
       learningPath.difficulty as keyof typeof difficultyColors
     ] || 'bg-gray-100 text-gray-800';
 
+    const isEnrolled = learningPath.enrollments.some(
+        (enrollment) => enrollment.userId === userId
+      )
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
@@ -95,12 +74,24 @@ export default function LearningPathCard({
       </CardContent>
 
       <CardFooter className="pt-3">
-        <Button asChild className="w-full group">
+        {
+            isEnrolled ? (
+                <Button variant="secondary" asChild className="w-full group border border-primary!">
+                <Link href={`/learn/${learningPath.id}/lessons`}>
+                  Continue learning
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+            ) :(
+                <Button asChild className="w-full group">
           <Link href={`/learn/${learningPath.id}`}>
             Start Learning
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </Link>
         </Button>
+            )
+        }
+        
       </CardFooter>
     </Card>
   );

@@ -1,7 +1,8 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Clock, Users, Star, BookOpen, Target, Award } from 'lucide-react'
+import { Clock, Users, Star, BookOpen, Target, Award, ChevronRight } from 'lucide-react'
 import { EnrollButton } from './enroll-button'
+import { categoryColors, difficultyColors } from '@/style'
 
 interface LearningPathHeaderProps {
   learningPath: {
@@ -10,9 +11,17 @@ interface LearningPathHeaderProps {
     description: string
     category: string
     difficulty: string
+    isEnrolled: boolean
     estimatedHours: number
     totalEnrollments: number
     averageRating: number | null
+    enrollments: {
+      id: string;
+      userId: string;
+      status: any;
+      progress: number;
+      enrolledAt: Date;
+  }[];
     stats: {
       totalModules: number
       totalChallenges: number
@@ -20,23 +29,6 @@ interface LearningPathHeaderProps {
       activeEnrollments: number
     }
   }
-}
-
-const categoryColors = {
-  FRONTEND: 'text-blue-800 bg-blue-500/30 dark:text-blue-300 border border-blue-500',
-  BACKEND: 'text-green-800 bg-green-500/30 dark:text-green-300 border border-green-500',
-  FULLSTACK: 'text-purple-800 bg-purple-500/30 dark:text-purple-300 border border-purple-500',
-  MOBILE: 'text-orange-800 bg-orange-500/30 dark:text-orange-300 border border-orange-500',
-  DATA_SCIENCE: 'text-pink-800 bg-pink-500/30 dark:text-pink-300 border border-pink-500',
-  DEVOPS: 'text-yellow-800 bg-yellow-500/30 dark:text-yellow-300 border border-yellow-500',
-  CYBERSECURITY: 'text-red-800 bg-red-500/30 dark:text-red-300 border border-red-500',
-}
-
-const difficultyColors = {
-  BEGINNER: 'text-emerald-800 bg-emerald-500/30 dark:text-emerald-300 border border-emerald-500',
-  INTERMEDIATE: 'text-amber-800 bg-amber-500/30 dark:text-amber-300 border border-amber-500',
-  ADVANCED: 'text-orange-800 bg-orange-500/30 dark:text-orange-300 border border-orange-500',
-  EXPERT: 'text-red-800 bg-red-500/30 dark:text-red-300 border border-red-500',
 }
 
 export function LearningPathHeader({ learningPath }: LearningPathHeaderProps) {
@@ -111,8 +103,19 @@ export function LearningPathHeader({ learningPath }: LearningPathHeaderProps) {
 
         {/* Action Button */}
         <div className="pt-4">
+
+        {
+          learningPath.isEnrolled ? (
+            <Button className="w-full md:w-auto">
+              Continue Learning
+              <ChevronRight />
+            </Button>
+          ) : (
           <EnrollButton pathId={learningPath.id} />
+          )
+        }
         </div>
+        
       </div>
     </div>
   )

@@ -16,6 +16,9 @@ export interface LearningPath {
     title: string;
     description: string;
     category: Category;
+    enrollments: {
+          userId: string
+      }[];
     difficulty: Difficulty;
     estimatedHours: number;
     totalEnrollments: number;
