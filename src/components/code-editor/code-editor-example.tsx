@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { testCodeValidator } from '@/utils/test-code-validator';
 
 const SAMPLE_CODE = {
   javascript: `// JavaScript Example
@@ -107,7 +108,7 @@ export const CodeEditorExample: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="language">Language</Label>
               <Select value={language} onValueChange={handleLanguageChange}>
@@ -155,6 +156,18 @@ export const CodeEditorExample: React.FC = () => {
               />
               <Label htmlFor="analysis">Show Analysis Panel</Label>
             </div>
+          </div>
+          
+          <div className="flex justify-end">
+            <button
+              onClick={() => {
+                console.log('Running validator test...');
+                testCodeValidator();
+              }}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Test Validator (Check Console)
+            </button>
           </div>
         </CardContent>
       </Card>

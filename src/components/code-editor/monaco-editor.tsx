@@ -328,7 +328,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
       </div>
 
       {/* Monaco Editor */}
-      <div className="relative">
+      <div className="relative w-full h-full flex">
         <Editor
           height={isFullscreen ? 'calc(100vh - 120px)' : height}
           language={language}

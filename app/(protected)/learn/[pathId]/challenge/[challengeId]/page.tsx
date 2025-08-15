@@ -2,9 +2,9 @@ import { Suspense } from 'react'
 import { notFound, redirect } from 'next/navigation'
 import { getChallengeById } from '@/actions/cursus.actions'
 import { getServerSession } from '@/lib/auth-server'
-import { ChallengeEditor } from '@/components/learn/challenge-editor'
-import { ChallengeHeader } from '@/components/learn/challenge-header'
-import { ChallengeSidebar } from '@/components/learn/challenge-sidebar'
+// import { ChallengeEditor } from '@/components/learn/challenge-editor'
+// import { ChallengeHeader } from '@/components/learn/challenge-header'
+// import { ChallengeSidebar } from '@/components/learn/challenge-sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface ChallengePageProps {
@@ -48,28 +48,28 @@ async function ChallengePageContent({ pathId, challengeId }: { pathId: string, c
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <ChallengeHeader 
+        {/* <ChallengeHeader 
           pathId={pathId}
           challenge={challenge}
           latestSubmission={challenge.latestSubmission}
-        />
+        /> */}
 
         {/* Editor */}
         <div className="flex-1">
-          <ChallengeEditor 
+          {/* <ChallengeEditor 
             challenge={challenge}
             latestSubmission={challenge.latestSubmission}
-          />
+          /> */}
         </div>
       </div>
 
       {/* Sidebar */}
       <div className="w-96 border-l bg-muted/30">
-        <ChallengeSidebar 
+        {/* <ChallengeSidebar 
           pathId={pathId}
           challenge={challenge}
           latestSubmission={challenge.latestSubmission}
-        />
+        /> */}
       </div>
     </div>
   )
