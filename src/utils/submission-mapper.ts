@@ -9,7 +9,9 @@ export type ComponentSubmissionStatus = 'PENDING' | 'PASSED' | 'FAILED';
 /**
  * Maps database SubmissionStatus to component-expected status
  */
-export function mapSubmissionStatus(dbStatus: SubmissionStatus): ComponentSubmissionStatus {
+export function mapSubmissionStatus(
+  dbStatus: SubmissionStatus
+): ComponentSubmissionStatus {
   switch (dbStatus) {
     case 'PENDING':
     case 'ANALYZING':
@@ -35,7 +37,9 @@ export function mapSubmissionForComponent(dbSubmission: any) {
     status: mapSubmissionStatus(dbSubmission.status),
     score: dbSubmission.score,
     feedback: dbSubmission.feedback,
-    testResults: dbSubmission.testResults ? JSON.parse(dbSubmission.testResults) : undefined,
+    testResults: dbSubmission.testResults
+      ? JSON.parse(dbSubmission.testResults)
+      : undefined,
   };
 }
 
@@ -45,60 +49,96 @@ export function mapSubmissionForComponent(dbSubmission: any) {
 export function mapChallengeForComponent(dbChallenge: any) {
   if (!dbChallenge) return null;
 
-  // Safely parse JSON fields
-  let requirements = {};
-  let testCases = [];
-  let kiroSpecs = {};
+  // Safely parse JSON fields with proper typing
+  let requirements: any = {};
+  let testCases: any[] = [];
+  let kiroSpecs: any = {};
 
   try {
-    requirements = typeof dbChallenge.requirements === 'string' 
-      ? JSON.parse(dbChallenge.requirements) 
-      : (dbChallenge.requirements || {});
+    requirements =
+      typeof dbChallenge.requirements === 'string'
+        ? JSON.parse(dbChallenge.requirements)
+        : dbChallenge.requirements || {};
   } catch (e) {
     console.warn('Failed to parse requirements JSON:', e);
+    requirements = {};
   }
 
   try {
-    testCases = typeof dbChallenge.testCases === 'string' 
-      ? JSON.parse(dbChallenge.testCases) 
-      : (dbChallenge.testCases || []);
+    testCases =
+      typeof dbChallenge.testCases === 'string'
+        ? JSON.parse(dbChallenge.testCases)
+        : dbChallenge.testCases || [];
   } catch (e) {
     console.warn('Failed to parse testCases JSON:', e);
+    testCases = [];
   }
 
   try {
-    kiroSpecs = typeof dbChallenge.kiroSpecs === 'string' 
-      ? JSON.parse(dbChallenge.kiroSpecs) 
-      : (dbChallenge.kiroSpecs || {});
+    kiroSpecs =
+      typeof dbChallenge.kiroSpecs === 'string'
+        ? JSON.parse(dbChallenge.kiroSpecs)
+        : dbChallenge.kiroSpecs || {};
   } catch (e) {
     console.warn('Failed to parse kiroSpecs JSON:', e);
+    kiroSpecs = {};
   }
 
-  // Determine difficulty with fallback
+  
+
+  // Determine difficulty with fallback using safe property access
   let difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' = 'BEGINNER';
-  const difficultyValue = requirements.difficulty || kiroSpecs.difficulty || 'BEGINNER';
-  if (['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].includes(difficultyValue.toUpperCase())) {
-    difficulty = difficultyValue.toUpperCase() as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  const difficultyValue =
+    requirements?.difficulty || kiroSpecs?.difficulty || 'BEGINNER';
+  if (
+    typeof difficultyValue === 'string' &&
+    ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].includes(
+      difficultyValue.toUpperCase()
+    )
+  ) {
+    difficulty = difficultyValue.toUpperCase() as
+      | 'BEGINNER'
+      | 'INTERMEDIATE'
+      | 'ADVANCED';
   }
 
   return {
     id: dbChallenge.id,
     title: dbChallenge.title || 'Untitled Challenge',
     description: dbChallenge.description || 'No description available.',
-    instructions: requirements.instructions || kiroSpecs.instructions || dbChallenge.description || 'Complete this challenge.',
-    language: requirements.language || kiroSpecs.language || 'javascript',
-    starterCode: dbChallenge.startingCode || requirements.starterCode || kiroSpecs.starterCode || undefined,
+    instructions:
+      requirements?.instructions ||
+      kiroSpecs?.instructions ||
+      dbChallenge.description ||
+      'Complete this challenge.',
+    language: requirements?.language || kiroSpecs?.language || 'javascript',
+    starterCode:
+      dbChallenge.startingCode ||
+      requirements?.starterCode ||
+      kiroSpecs?.starterCode ||
+      undefined,
     difficulty,
-    estimatedTime: requirements.estimatedTime || kiroSpecs.estimatedTime || 30,
+    estimatedTime:
+      requirements?.estimatedTime || kiroSpecs?.estimatedTime || 30,
     points: dbChallenge.points || 100,
-    status: mapChallengeStatus(requirements.status || 'NOT_STARTED'),
+    status: mapChallengeStatus(requirements?.status || 'NOT_STARTED'),
     testCases: Array.isArray(testCases) ? testCases : [],
-    examples: requirements.examples || kiroSpecs.examples || [],
-    hints: requirements.hints || kiroSpecs.hints || [],
+    examples: requirements?.examples || kiroSpecs?.examples || [],
+    hints: requirements?.hints || kiroSpecs?.hints || [],
+    // Unit tests fields
+    unitTests: dbChallenge.unitTests || undefined,
+    testFramework: dbChallenge.testFramework || 'JEST',
+    testTimeout: dbChallenge.testTimeout || 5000,
+    testSetup: dbChallenge.testSetup || undefined,
+    testTeardown: dbChallenge.testTeardown || undefined,
+    allowedImports: dbChallenge.allowedImports || [],
+    memoryLimit: dbChallenge.memoryLimit || 128,
+    timeLimit: dbChallenge.timeLimit || 10,
     module: {
       title: dbChallenge.module?.title || 'Unknown Module',
       learningPath: {
-        title: dbChallenge.module?.learningPath?.title || 'Unknown Learning Path',
+        title:
+          dbChallenge.module?.learningPath?.title || 'Unknown Learning Path',
       },
     },
   };
@@ -107,7 +147,9 @@ export function mapChallengeForComponent(dbChallenge: any) {
 /**
  * Maps challenge status from database to component format
  */
-export function mapChallengeStatus(dbStatus: string): 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' {
+export function mapChallengeStatus(
+  dbStatus: string
+): 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' {
   switch (dbStatus) {
     case 'NOT_STARTED':
       return 'NOT_STARTED';

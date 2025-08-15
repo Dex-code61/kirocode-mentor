@@ -17,6 +17,10 @@ export type { CodeEditorWithAnalysisProps } from './code-editor-with-analysis';
 export { CodeEditorExample } from './code-editor-example';
 export { ChallengeCodeEditor } from './challenge-code-editor';
 export type { ChallengeCodeEditorProps } from './challenge-code-editor';
+export { EnhancedChallengeEditor } from './enhanced-challenge-editor';
+export type { EnhancedChallengeEditorProps } from './enhanced-challenge-editor';
+export { TestResultsPanel } from './test-results-panel';
+export { UnitTestEditor } from './unit-test-editor';
 
 // Re-export utilities
 export { formatCode, validateCodeSyntax } from '../../utils/code-formatter';

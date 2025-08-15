@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { ChallengeCodeEditor } from '@/components/code-editor/challenge-code-editor';
+import { EnhancedChallengeEditor } from '@/components/code-editor/enhanced-challenge-editor';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { ComponentChallenge, ComponentSubmission } from '@/types/challenge.types';
+import {
+  ComponentChallenge,
+  ComponentSubmission,
+} from '@/types/challenge.types';
 
 interface ChallengeEditorProps {
   challenge: ComponentChallenge;
@@ -19,7 +22,10 @@ export const ChallengeEditor: React.FC<ChallengeEditorProps> = ({
   const [isTesting, setIsTesting] = useState(false);
 
   // Determine initial code (latest submission or starter code)
-  const initialCode = latestSubmission?.code || challenge.starterCode || getDefaultStarterCode(challenge.language);
+  const initialCode =
+    latestSubmission?.code ||
+    challenge.starterCode ||
+    getDefaultStarterCode(challenge.language);
 
   // Get user level based on challenge difficulty
   const getUserLevel = () => {
@@ -36,50 +42,57 @@ export const ChallengeEditor: React.FC<ChallengeEditorProps> = ({
   };
 
   // Handle code testing
-  const handleCodeTest = useCallback(async (code: string) => {
-    setIsTesting(true);
-    
-    try {
-      // Simulate API call to test code
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock test results based on challenge test cases
-      const results = challenge.testCases?.map((testCase, index) => ({
-        passed: Math.random() > 0.3, // 70% chance of passing for demo
-        description: testCase.description || `Test case ${index + 1}`,
-        error: Math.random() > 0.7 ? 'Expected different output' : undefined,
-      })) || [];
+  const handleCodeTest = useCallback(
+    async (code: string) => {
+      setIsTesting(true);
 
-      const passed = results.filter(r => r.passed).length;
-      const total = results.length;
+      try {
+        // Simulate API call to test code
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      toast.success(`Tests completed: ${passed}/${total} passed`);
+        // Mock test results based on challenge test cases
+        const results =
+          challenge.testCases?.map((testCase, index) => ({
+            passed: Math.random() > 0.3, // 70% chance of passing for demo
+            description: testCase.description || `Test case ${index + 1}`,
+            error:
+              Math.random() > 0.7 ? 'Expected different output' : undefined,
+          })) || [];
 
-      return {
-        passed,
-        total,
-        results,
-      };
-    } catch (error) {
-      toast.error('Failed to run tests');
-      throw error;
-    } finally {
-      setIsTesting(false);
-    }
-  }, [challenge.testCases]);
+        const passed = results.filter(r => r.passed).length;
+        const total = results.length;
+
+        toast.success(`Tests completed: ${passed}/${total} passed`);
+
+        return {
+          passed,
+          total,
+          results,
+        };
+      } catch (error) {
+        toast.error('Failed to run tests');
+        throw error;
+      } finally {
+        setIsTesting(false);
+      }
+    },
+    [challenge.testCases]
+  );
 
   // Handle code submission
   const handleCodeSubmit = useCallback(async (code: string) => {
     setIsSubmitting(true);
-    
+
     try {
       // Simulate API call to submit code
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       // Mock submission result
       const success = Math.random() > 0.4; // 60% chance of success for demo
-      const score = success ? Math.floor(Math.random() * 30) + 70 : Math.floor(Math.random() * 60);
-      
+      const score = success
+        ? Math.floor(Math.random() * 30) + 70
+        : Math.floor(Math.random() * 60);
+
       if (success) {
         toast.success(`Solution submitted successfully! Score: ${score}%`);
         return {
@@ -104,13 +117,21 @@ export const ChallengeEditor: React.FC<ChallengeEditorProps> = ({
   }, []);
 
   return (
-    <div className="h-full p-6">
-      <ChallengeCodeEditor
+    <div className="h-full p-4 sm:p-6">
+      <EnhancedChallengeEditor
         challengeId={challenge.id}
         initialCode={initialCode}
         language={challenge.language}
-        testCases={challenge.testCases}
-        onCodeTest={handleCodeTest}
+        unitTests={challenge.unitTests}
+        testFramework={challenge.testFramework}
+        testConfig={{
+          timeout: challenge.testTimeout,
+          memoryLimit: challenge.memoryLimit,
+          timeLimit: challenge.timeLimit,
+          allowedImports: challenge.allowedImports,
+          setup: challenge.testSetup,
+          teardown: challenge.testTeardown,
+        }}
         onCodeSubmit={handleCodeSubmit}
         userLevel={getUserLevel()}
         className="h-full"

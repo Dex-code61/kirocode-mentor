@@ -271,6 +271,18 @@ model Challenge {
   solution     String? // Solution de référence
   testCases    Json // Cas de test automatisés
 
+  // Tests unitaires
+  unitTests    String? // Code des tests unitaires
+  testFramework TestFramework @default(JEST) // Framework de test utilisé
+  testTimeout  Int @default(5000) // Timeout en ms
+  testSetup    String? // Code de setup pour les tests
+  testTeardown String? // Code de cleanup après les tests
+
+  // Configuration d'exécution
+  allowedImports String[] @default([]) // Imports autorisés
+  memoryLimit   Int @default(128) // Limite mémoire en MB
+  timeLimit     Int @default(10) // Limite temps en secondes
+
   // Génération dynamique par Kiro
   kiroSpecs Json // Spécifications pour Kiro
   isDynamic Boolean @default(false) // Généré à la volée
@@ -645,4 +657,14 @@ enum FeedbackType {
   CORRECTION
   SUGGESTION
   EXPLANATION
+}
+
+enum TestFramework {
+  JEST
+  MOCHA
+  VITEST
+  PYTEST
+  JUNIT
+  GTEST
+  CUSTOM
 }

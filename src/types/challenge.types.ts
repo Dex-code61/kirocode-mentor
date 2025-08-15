@@ -36,6 +36,15 @@ export interface ComponentChallenge {
     explanation?: string;
   }>;
   hints?: string[];
+  // Unit tests fields
+  unitTests?: string;
+  testFramework?: 'JEST' | 'MOCHA' | 'VITEST' | 'PYTEST' | 'JUNIT' | 'GTEST' | 'CUSTOM';
+  testTimeout?: number;
+  testSetup?: string;
+  testTeardown?: string;
+  allowedImports?: string[];
+  memoryLimit?: number;
+  timeLimit?: number;
   module: {
     title: string;
     learningPath: {
