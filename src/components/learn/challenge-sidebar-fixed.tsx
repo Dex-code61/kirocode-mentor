@@ -25,6 +25,7 @@ interface ChallengeSidebarProps {
   challenge: ComponentChallenge;
   latestSubmission?: ComponentSubmission | null;
   isMobile?: boolean;
+  onClose?: () => void;
 }
 
 export const ChallengeSidebar: React.FC<ChallengeSidebarProps> = ({
@@ -32,6 +33,7 @@ export const ChallengeSidebar: React.FC<ChallengeSidebarProps> = ({
   challenge,
   latestSubmission,
   isMobile = false,
+  onClose,
 }) => {
   const [activeTab, setActiveTab] = useState('description');
   const [showHints, setShowHints] = useState(false);
@@ -82,8 +84,26 @@ export const ChallengeSidebar: React.FC<ChallengeSidebarProps> = ({
 
   return (
     <div className="w-full h-full bg-muted/30 flex flex-col">
-      <div className="p-4 border-b">
-        <h2 className="font-semibold text-lg">Challenge Details</h2>
+      <div className="p-4 border-b flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="font-semibold text-lg">Challenge Details</h2>
+          {onClose && (
+            <div className="hidden xl:flex items-center text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+              Ctrl+\
+            </div>
+          )}
+        </div>
+        {onClose && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose} 
+            className="rounded-full w-8 h-8 p-0"
+            title="Close sidebar (Ctrl+\)"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       <SidebarContent 

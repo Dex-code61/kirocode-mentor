@@ -8,6 +8,7 @@ import { ChallengeSidebar } from '@/components/learn/challenge-sidebar-fixed';
 import { Skeleton } from '@/components/ui/skeleton';
 import { mapSubmissionForComponent } from '@/utils/submission-mapper';
 import { safeMapChallenge } from '@/utils/challenge-validator';
+import { ChallengePageClient } from '@/components/learn/challenge-page-client';
 
 interface ChallengePageProps {
   params: Promise<{
@@ -64,47 +65,11 @@ async function ChallengePageContent({
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Mobile-first responsive layout */}
-      <div className="flex flex-col lg:flex-row h-screen">
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Header */}
-          <ChallengeHeader
-            pathId={pathId}
-            challenge={mappedChallenge}
-            latestSubmission={mappedSubmission}
-          />
-
-          {/* Editor */}
-          <div className="flex-1 min-h-0">
-            <ChallengeEditor
-              challenge={mappedChallenge}
-              latestSubmission={mappedSubmission}
-            />
-          </div>
-        </div>
-
-        {/* Sidebar - Hidden on mobile, collapsible on tablet */}
-        <div className="hidden lg:block lg:w-96 xl:w-[400px] border-l bg-muted/30 flex-shrink-0">
-          <ChallengeSidebar
-            pathId={pathId}
-            challenge={mappedChallenge}
-            latestSubmission={mappedSubmission}
-          />
-        </div>
-      </div>
-
-      {/* Mobile Sidebar - Bottom sheet or modal */}
-      <div className="lg:hidden">
-        <ChallengeSidebar
-          pathId={pathId}
-          challenge={mappedChallenge}
-          latestSubmission={mappedSubmission}
-          isMobile={true}
-        />
-      </div>
-    </div>
+    <ChallengePageClient
+      pathId={pathId}
+      challenge={mappedChallenge}
+      latestSubmission={mappedSubmission}
+    />
   );
 }
 
