@@ -44,9 +44,9 @@ async function ModulePageContent({ pathId, moduleId }: { pathId: string, moduleI
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="w-full flex h-screen">
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex flex-col">
         {/* Navigation Header */}
         <ModuleNavigation 
           pathId={pathId}
@@ -55,7 +55,7 @@ async function ModulePageContent({ pathId, moduleId }: { pathId: string, moduleI
         />
 
         {/* Module Content */}
-        <div className="flex-1 overflow-auto">
+        <div className="overflow-auto">
           <ModuleContent 
             module={module}
             userProgress={module.userProgress}

@@ -1,0 +1,313 @@
+/**
+ * Monaco Editor Custom Styles
+ * These styles enhance the Monaco Editor with custom decorations and themes
+ */
+
+/* Error decorations */
+.monaco-error-decoration {
+  background-color: rgba(255, 0, 0, 0.1);
+  border-bottom: 2px wavy #ff0000;
+}
+
+.monaco-error-glyph {
+  background-color: #ff0000;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.monaco-error-glyph::after {
+  content: '!';
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Warning decorations */
+.monaco-warning-decoration {
+  background-color: rgba(255, 170, 0, 0.1);
+  border-bottom: 2px wavy #ffaa00;
+}
+
+.monaco-warning-glyph {
+  background-color: #ffaa00;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.monaco-warning-glyph::after {
+  content: '⚠';
+  color: white;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Info decorations */
+.monaco-info-decoration {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-bottom: 1px dotted #007bff;
+}
+
+.monaco-info-glyph {
+  background-color: #007bff;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.monaco-info-glyph::after {
+  content: 'i';
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Suggestion decorations */
+.monaco-suggestion-decoration {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-bottom: 1px dotted #28a745;
+}
+
+.monaco-suggestion-glyph {
+  background-color: #28a745;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+
+.monaco-suggestion-glyph::after {
+  content: '💡';
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Custom scrollbar for Monaco Editor */
+.monaco-editor .monaco-scrollable-element > .scrollbar > .slider {
+  background: rgba(121, 121, 121, 0.4);
+}
+
+.monaco-editor .monaco-scrollable-element > .scrollbar > .slider:hover {
+  background: rgba(100, 100, 100, 0.7);
+}
+
+.monaco-editor .monaco-scrollable-element > .scrollbar > .slider.active {
+  background: rgba(191, 191, 191, 0.4);
+}
+
+/* Dark theme adjustments */
+.dark .monaco-editor .monaco-scrollable-element > .scrollbar > .slider {
+  background: rgba(79, 79, 79, 0.4);
+}
+
+.dark .monaco-editor .monaco-scrollable-element > .scrollbar > .slider:hover {
+  background: rgba(130, 130, 130, 0.7);
+}
+
+.dark .monaco-editor .monaco-scrollable-element > .scrollbar > .slider.active {
+  background: rgba(191, 191, 191, 0.4);
+}
+
+/* Custom hover widget styling */
+.monaco-editor .monaco-hover {
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  color: var(--foreground);
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.monaco-editor .monaco-hover .monaco-hover-content {
+  padding: 8px 12px;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.monaco-editor .monaco-hover .monaco-hover-content code {
+  background-color: var(--muted);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* Suggestion widget styling */
+.monaco-editor .suggest-widget {
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  border-radius: 6px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row {
+  border-radius: 4px;
+  margin: 2px 4px;
+}
+
+.monaco-editor .suggest-widget .monaco-list .monaco-list-row.focused {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Parameter hints widget */
+.monaco-editor .parameter-hints-widget {
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.monaco-editor .parameter-hints-widget .monaco-parameter-hints-content {
+  padding: 8px 12px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* Find widget styling */
+.monaco-editor .find-widget {
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.monaco-editor .find-widget .monaco-inputbox {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.monaco-editor .find-widget .monaco-inputbox.synthetic-focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+/* Context menu styling */
+.monaco-menu {
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  border-radius: 6px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 4px;
+}
+
+.monaco-menu .monaco-action-bar .action-item {
+  border-radius: 4px;
+  margin: 1px;
+}
+
+.monaco-menu .monaco-action-bar .action-item:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Minimap styling */
+.monaco-editor .minimap {
+  border-left: 1px solid var(--border);
+}
+
+.monaco-editor .minimap-slider {
+  background-color: rgba(var(--foreground), 0.1);
+}
+
+.monaco-editor .minimap-slider:hover {
+  background-color: rgba(var(--foreground), 0.2);
+}
+
+/* Line numbers styling */
+.monaco-editor .line-numbers {
+  color: var(--muted-foreground);
+}
+
+.monaco-editor .current-line ~ .line-numbers {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+/* Selection styling */
+.monaco-editor .selected-text {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Bracket matching */
+.monaco-editor .bracket-match {
+  background-color: rgba(var(--accent), 0.3);
+  border: 1px solid var(--accent);
+}
+
+/* Word highlighting */
+.monaco-editor .wordHighlight {
+  background-color: rgba(var(--accent), 0.2);
+}
+
+.monaco-editor .wordHighlightStrong {
+  background-color: rgba(var(--accent), 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .monaco-editor .suggest-widget {
+    max-width: 90vw;
+  }
+  
+  .monaco-editor .monaco-hover {
+    max-width: 90vw;
+  }
+  
+  .monaco-editor .parameter-hints-widget {
+    max-width: 90vw;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .monaco-error-decoration {
+    background-color: rgba(255, 0, 0, 0.3);
+    border-bottom: 3px solid #ff0000;
+  }
+  
+  .monaco-warning-decoration {
+    background-color: rgba(255, 170, 0, 0.3);
+    border-bottom: 3px solid #ffaa00;
+  }
+  
+  .monaco-editor .suggest-widget,
+  .monaco-editor .monaco-hover,
+  .monaco-editor .parameter-hints-widget {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .monaco-editor * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
