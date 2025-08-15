@@ -165,88 +165,268 @@ export async function updateLearningPathProgress(
   }
 }
 
-export const getAvailableLearningPaths = actionClient.inputSchema(
-  z.object({
-    category: z.enum([
-      'FRONTEND',
-      'BACKEND',
-      'FULLSTACK',
-      'DEVOPS',
-      'MOBILE',
-      'CYBERSECURITY',
-      'DATA_SCIENCE'
-    ]).optional(),
-    difficulty: z.enum([
-      'BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'
-    ]).optional(),
-    search: z.string().optional(),
-    page: z.number().min(1).default(1),
-    limit: z.number().min(1).max(50).default(12),
-  })
-).action(async ({parsedInput}) => {
-  try {
-    const whereClause = {
-      ...(parsedInput.category && { category: parsedInput.category }),
-      ...(parsedInput.difficulty && { difficulty: parsedInput.difficulty }),
+export const getAvailableLearningPaths = actionClient
+  .inputSchema(
+    z.object({
+      category: z
+        .enum([
+          'FRONTEND',
+          'BACKEND',
+          'FULLSTACK',
+          'DEVOPS',
+          'MOBILE',
+          'CYBERSECURITY',
+          'DATA_SCIENCE',
+        ])
+        .optional(),
+      difficulty: z
+        .enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'])
+        .optional(),
+      search: z.string().optional(),
+      page: z.number().min(1).default(1),
+      limit: z.number().min(1).max(50).default(12),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    try {
+      const whereClause = {
+        ...(parsedInput.category && { category: parsedInput.category }),
+        ...(parsedInput.difficulty && { difficulty: parsedInput.difficulty }),
         OR: [
-          {title: {
-            contains: parsedInput.search,
-            mode: 'insensitive' as const,
-          }},
-          {description: {
-            contains: parsedInput.search,
-            mode: 'insensitive' as const,
-          }},
-        ]
-    };
+          {
+            title: {
+              contains: parsedInput.search,
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            description: {
+              contains: parsedInput.search,
+              mode: 'insensitive' as const,
+            },
+          },
+        ],
+      };
 
-    // Get total count for pagination
-    const totalCount = await prisma.learningPath.count({
-      where: whereClause
-    });
+      // Get total count for pagination
+      const totalCount = await prisma.learningPath.count({
+        where: whereClause,
+      });
 
-    // Calculate pagination
-    const skip = (parsedInput.page - 1) * parsedInput.limit;
-    const totalPages = Math.ceil(totalCount / parsedInput.limit);
+      // Calculate pagination
+      const skip = (parsedInput.page - 1) * parsedInput.limit;
+      const totalPages = Math.ceil(totalCount / parsedInput.limit);
 
-    const learningPaths = await prisma.learningPath.findMany({
-      where: whereClause,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        category: true,
-        difficulty: true,
-        estimatedHours: true,
-        totalEnrollments: true,
-        averageRating: true,
-      },
-      orderBy: [{ totalEnrollments: 'desc' }, { title: 'asc' }],
-      skip,
-      take: parsedInput.limit,
-    });
-    
-    return {
-      data: {
-        learningPaths,
-        pagination: {
-          currentPage: parsedInput.page,
-          totalPages,
-          totalCount,
-          limit: parsedInput.limit,
-          hasNextPage: parsedInput.page < totalPages,
-          hasPreviousPage: parsedInput.page > 1,
+      const learningPaths = await prisma.learningPath.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          category: true,
+          difficulty: true,
+          estimatedHours: true,
+          totalEnrollments: true,
+          averageRating: true,
+        },
+        orderBy: [{ totalEnrollments: 'desc' }, { title: 'asc' }],
+        skip,
+        take: parsedInput.limit,
+      });
+
+      return {
+        data: {
+          learningPaths,
+          pagination: {
+            currentPage: parsedInput.page,
+            totalPages,
+            totalCount,
+            limit: parsedInput.limit,
+            hasNextPage: parsedInput.page < totalPages,
+            hasPreviousPage: parsedInput.page > 1,
+          },
+        },
+        message: 'Learning paths fetched successfully',
+        error: null,
+      };
+    } catch (error) {
+      console.error('Error fetching available learning paths:', error);
+      return {
+        data: null,
+        message: 'Failed to fetch learning paths',
+        error,
+      };
+    }
+  });
+
+export const getLearningPathById = actionClient
+  .inputSchema(
+    z.object({
+      pathId: z.cuid("Invalid pathID")
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    try {
+      if (!prisma) {
+        console.error('Prisma instance is undefined');
+        return null;
+      }
+
+      const learningPath = await prisma.learningPath.findUnique({
+        where: {
+          id: parsedInput.pathId,
+        },
+        include: {
+          modules: {
+            orderBy: {
+              order: 'asc',
+            },
+            include: {
+              challenges: {
+                select: {
+                  id: true,
+                  title: true,
+                  type: true,
+                  points: true,
+                },
+              },
+              codeExamples: {
+                select: {
+                  id: true,
+                  title: true,
+                  language: true,
+                  difficulty: true,
+                },
+              },
+            },
+          },
+          enrollments: {
+            select: {
+              id: true,
+              userId: true,
+              status: true,
+              progress: true,
+              enrolledAt: true,
+            },
+          },
+        },
+      });
+
+      if (!learningPath) {
+        return null;
+      }
+
+      // Calculate some statistics
+      const totalChallenges = learningPath.modules.reduce(
+        (acc, module) => acc + module.challenges.length,
+        0
+      );
+
+      const totalCodeExamples = learningPath.modules.reduce(
+        (acc, module) => acc + module.codeExamples.length,
+        0
+      );
+
+      return {
+        ...learningPath,
+        stats: {
+          totalModules: learningPath.modules.length,
+          totalChallenges,
+          totalCodeExamples,
+          activeEnrollments: learningPath.enrollments.filter(
+            e => e.status === 'ACTIVE'
+          ).length,
+        },
+      };
+    } catch (error) {
+      console.error('Error fetching learning path:', error);
+      return null;
+    }
+  });
+
+export const enrollInLearningPath = actionClient
+  .inputSchema(
+    z.object({
+      pathId: z.cuid("Invalid pathID"),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    try {
+      const session = await getServerSession();
+
+      if (!session?.user?.id) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!prisma) {
+        console.error('Prisma instance is undefined');
+        throw new Error('Database connection error');
+      }
+
+      // Check if user is already enrolled
+      const existingEnrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_learningPathId: {
+            userId: session.user.id,
+            learningPathId: parsedInput.pathId,
+          },
+        },
+      });
+
+      if (existingEnrollment) {
+        if (existingEnrollment.status === 'ACTIVE') {
+          return {
+            success: false,
+            message: 'Already enrolled in this learning path',
+          };
+        } else {
+          // Reactivate enrollment
+          await prisma.enrollment.update({
+            where: {
+              id: existingEnrollment.id,
+            },
+            data: {
+              status: 'ACTIVE',
+              lastAccessedAt: new Date(),
+            },
+          });
+          return {
+            success: true,
+            message: 'Enrollment reactivated successfully',
+          };
         }
-      },
-      message: 'Learning paths fetched successfully',
-      error: null
-    };
-  } catch (error) {
-    console.error('Error fetcailable learning paths:', error);
-    return {
-      data: null,
-      message: 'Failed to fetch learning paths',
-      error
-    };
-  }
-})
+      }
+
+      // Create new enrollment
+      await prisma.enrollment.create({
+        data: {
+          userId: session.user.id,
+          learningPathId: parsedInput.pathId,
+          status: 'ACTIVE',
+          progress: 0,
+          enrolledAt: new Date(),
+          lastAccessedAt: new Date(),
+        },
+      });
+
+      // Update total enrollments count
+      await prisma.learningPath.update({
+        where: {
+          id: parsedInput.pathId,
+        },
+        data: {
+          totalEnrollments: {
+            increment: 1,
+          },
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Successfully enrolled in learning path',
+      };
+    } catch (error) {
+      console.error('Error enrolling in learning path:', error);
+      return { success: false, message: 'Failed to enroll in learning path' };
+    }
+  });
