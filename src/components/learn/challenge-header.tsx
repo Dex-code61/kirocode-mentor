@@ -52,65 +52,70 @@ export const ChallengeHeader: React.FC<ChallengeHeaderProps> = ({
   };
 
   return (
-    <div className="h-16 border-b bg-background px-6 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <Link href={`/learn/${pathId}`}>
-          <Button variant="ghost" size="sm" className="flex items-center gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Path
-          </Button>
-        </Link>
+    <div className="border-b bg-background">
+      <div className="h-16 px-4 sm:px-6 flex items-center justify-between">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+          <Link href={`/learn/${pathId}`}>
+            <Button variant="ghost" size="sm" className="flex items-center gap-2 flex-shrink-0">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back to Path</span>
+            </Button>
+          </Link>
 
-        <Separator orientation="vertical" className="h-6" />
+          <Separator orientation="vertical" className="h-6 hidden sm:block" />
 
-        <div className="flex items-center gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-semibold">{challenge.title}</h1>
-              {getStatusIcon()}
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {challenge.module.learningPath.title} • {challenge.module.title}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-semibold truncate">{challenge.title}</h1>
+                {getStatusIcon()}
+              </div>
+              <div className="text-xs sm:text-sm text-muted-foreground truncate">
+                {challenge.module.learningPath.title} • {challenge.module.title}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Clock className="w-4 h-4" />
-          {challenge.estimatedTime} min
-        </div>
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+          {/* Mobile: Show only essential info */}
+          <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="w-4 h-4" />
+            {challenge.estimatedTime} min
+          </div>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Trophy className="w-4 h-4" />
-          {challenge.points} pts
-        </div>
+          <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+            <Trophy className="w-4 h-4" />
+            {challenge.points} pts
+          </div>
 
-        <Badge className={difficultyColors[challenge.difficulty]}>
-          {challenge.difficulty.toLowerCase()}
-        </Badge>
-
-        {challenge.status && (
-          <Badge className={statusColors[challenge.status]}>
-            {challenge.status.replace('_', ' ').toLowerCase()}
+          <Badge className={`${difficultyColors[challenge.difficulty]} text-xs`}>
+            {challenge.difficulty.toLowerCase()}
           </Badge>
-        )}
 
-        {latestSubmission && (
-          <Badge 
-            variant={latestSubmission.status === 'PASSED' ? 'default' : 'destructive'}
-            className="flex items-center gap-1"
-          >
-            {latestSubmission.status === 'PASSED' ? (
-              <CheckCircle className="w-3 h-3" />
-            ) : (
-              <AlertCircle className="w-3 h-3" />
-            )}
-            {latestSubmission.status}
-            {latestSubmission.score !== undefined && ` (${latestSubmission.score}%)`}
-          </Badge>
-        )}
+          {challenge.status && (
+            <Badge className={`${statusColors[challenge.status]} text-xs hidden sm:inline-flex`}>
+              {challenge.status.replace('_', ' ').toLowerCase()}
+            </Badge>
+          )}
+
+          {latestSubmission && (
+            <Badge 
+              variant={latestSubmission.status === 'PASSED' ? 'default' : 'destructive'}
+              className="flex items-center gap-1 text-xs"
+            >
+              {latestSubmission.status === 'PASSED' ? (
+                <CheckCircle className="w-3 h-3" />
+              ) : (
+                <AlertCircle className="w-3 h-3" />
+              )}
+              <span className="hidden sm:inline">{latestSubmission.status}</span>
+              {latestSubmission.score !== undefined && (
+                <span className="hidden sm:inline"> ({latestSubmission.score}%)</span>
+              )}
+            </Badge>
+          )}
+        </div>
       </div>
     </div>
   );

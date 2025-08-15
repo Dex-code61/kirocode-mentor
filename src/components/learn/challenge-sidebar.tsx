@@ -23,43 +23,111 @@ interface ChallengeSidebarProps {
   pathId: string;
   challenge: ComponentChallenge;
   latestSubmission?: ComponentSubmission | null;
+  isMobile?: boolean;
 }
 
 export const ChallengeSidebar: React.FC<ChallengeSidebarProps> = ({
   pathId,
   challenge,
   latestSubmission,
+  isMobile = false,
 }) => {
   const [activeTab, setActiveTab] = useState('description');
   const [showHints, setShowHints] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile trigger button */}
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button
+            onClick={() => setIsOpen(true)}
+            className="rounded-full w-12 h-12 shadow-lg"
+          >
+            <FileText className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Mobile modal/sheet */}
+        {isOpen && (
+          <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setIsOpen(false)}>
+            <div 
+              className="fixed bottom-0 left-0 right-0 bg-background rounded-t-lg max-h-[80vh] overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-4 border-b flex items-center justify-between">
+                <h2 className="font-semibold text-lg">Challenge Details</h2>
+                <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
+                  ×
+                </Button>
+              </div>
+              <div className="overflow-y-auto max-h-[calc(80vh-80px)]">
+                <SidebarContent 
+                  challenge={challenge}
+                  latestSubmission={latestSubmission}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  showHints={showHints}
+                  setShowHints={setShowHints}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
 
   return (
-    <div className="w-96 border-l bg-muted/30 flex flex-col h-full">
+    <div className="w-full h-full bg-muted/30 flex flex-col">
       <div className="p-4 border-b">
         <h2 className="font-semibold text-lg">Challenge Details</h2>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-        <TabsList className="grid w-full grid-cols-4 mx-4 mt-4">
-          <TabsTrigger value="description" className="text-xs">
-            <FileText className="w-3 h-3 mr-1" />
-            Info
-          </TabsTrigger>
-          <TabsTrigger value="examples" className="text-xs">
-            <Target className="w-3 h-3 mr-1" />
-            Examples
-          </TabsTrigger>
-          <TabsTrigger value="tests" className="text-xs">
-            <TestTube className="w-3 h-3 mr-1" />
-            Tests
-          </TabsTrigger>
-          <TabsTrigger value="hints" className="text-xs">
-            <Lightbulb className="w-3 h-3 mr-1" />
-            Hints
-          </TabsTrigger>
-        </TabsList>
+      <SidebarContent 
+        challenge={challenge}
+        latestSubmission={latestSubmission}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        showHints={showHints}
+        setShowHints={setShowHints}
+      />
+    </div>
+  );
+};
 
-        <div className="flex-1 p-4">
+// Separate component for sidebar content to avoid duplication
+const SidebarContent: React.FC<{
+  challenge: ComponentChallenge;
+  latestSubmission?: ComponentSubmission | null;
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  showHints: boolean;
+  setShowHints: (show: boolean) => void;
+}> = ({ challenge, latestSubmission, activeTab, setActiveTab, showHints, setShowHints }) => {
+  return (
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+      <TabsList className="grid w-full grid-cols-4 mx-4 mt-4">
+        <TabsTrigger value="description" className="text-xs">
+          <FileText className="w-3 h-3 mr-1" />
+          Info
+        </TabsTrigger>
+        <TabsTrigger value="examples" className="text-xs">
+          <Target className="w-3 h-3 mr-1" />
+          Examples
+        </TabsTrigger>
+        <TabsTrigger value="tests" className="text-xs">
+          <TestTube className="w-3 h-3 mr-1" />
+          Tests
+        </TabsTrigger>
+        <TabsTrigger value="hints" className="text-xs">
+          <Lightbulb className="w-3 h-3 mr-1" />
+          Hints
+        </TabsTrigger>
+      </TabsList>
+
+      <div className="flex-1 p-4">
           <TabsContent value="description" className="mt-0">
             <ScrollArea className="h-full">
               <div className="space-y-4">
@@ -284,6 +352,5 @@ export const ChallengeSidebar: React.FC<ChallengeSidebarProps> = ({
           </TabsContent>
         </div>
       </Tabs>
-    </div>
   );
 };

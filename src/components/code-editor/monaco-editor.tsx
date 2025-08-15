@@ -239,7 +239,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
   return (
     <Card className={`${className} ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
       {/* Editor Header */}
-      <div className="flex items-center justify-between p-3 border-b">
+      <div className="flex items-center justify-between px-3 border-b">
         <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-xs">
             {language.toUpperCase()}

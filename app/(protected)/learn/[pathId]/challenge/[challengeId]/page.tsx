@@ -4,7 +4,7 @@ import { getChallengeById } from '@/actions/cursus.actions';
 import { getServerSession } from '@/lib/auth-server';
 import { ChallengeEditor } from '@/components/learn/challenge-editor';
 import { ChallengeHeader } from '@/components/learn/challenge-header';
-import { ChallengeSidebar } from '@/components/learn/challenge-sidebar';
+import { ChallengeSidebar } from '@/components/learn/challenge-sidebar-fixed';
 import { Skeleton } from '@/components/ui/skeleton';
 import { mapSubmissionForComponent } from '@/utils/submission-mapper';
 import { safeMapChallenge } from '@/utils/challenge-validator';
@@ -13,11 +13,13 @@ interface ChallengePageProps {
   params: Promise<{
     pathId: string;
     challengeId: string;
-  }>
+  }>;
 }
 
-export default async function ChallengePage({ params: _params }: ChallengePageProps) {
-  const params = await _params
+export default async function ChallengePage({
+  params: _params,
+}: ChallengePageProps) {
+  const params = await _params;
   return (
     <div className="min-h-screen bg-background">
       <Suspense fallback={<ChallengePageSkeleton />}>
@@ -62,31 +64,46 @@ async function ChallengePageContent({
   );
 
   return (
-    <div className="flex h-screen">
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <ChallengeHeader
-          pathId={pathId}
-          challenge={mappedChallenge}
-          latestSubmission={mappedSubmission}
-        />
+    <div className="min-h-screen bg-background">
+      {/* Mobile-first responsive layout */}
+      <div className="flex flex-col lg:flex-row h-screen">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Header */}
+          <ChallengeHeader
+            pathId={pathId}
+            challenge={mappedChallenge}
+            latestSubmission={mappedSubmission}
+          />
 
-        {/* Editor */}
-        <div className="flex-1">
-          <ChallengeEditor
+          {/* Editor */}
+          <div className="flex-1 min-h-0">
+            <ChallengeEditor
+              challenge={mappedChallenge}
+              latestSubmission={mappedSubmission}
+            />
+          </div>
+        </div>
+
+        {/* Sidebar - Hidden on mobile, collapsible on tablet */}
+        <div className="hidden lg:block lg:w-96 xl:w-[400px] border-l bg-muted/30 flex-shrink-0">
+          <ChallengeSidebar
+            pathId={pathId}
             challenge={mappedChallenge}
             latestSubmission={mappedSubmission}
           />
         </div>
       </div>
 
-      {/* Sidebar */}
-      <ChallengeSidebar
-        pathId={pathId}
-        challenge={mappedChallenge}
-        latestSubmission={mappedSubmission}
-      />
+      {/* Mobile Sidebar - Bottom sheet or modal */}
+      <div className="lg:hidden">
+        <ChallengeSidebar
+          pathId={pathId}
+          challenge={mappedChallenge}
+          latestSubmission={mappedSubmission}
+          isMobile={true}
+        />
+      </div>
     </div>
   );
 }
@@ -123,8 +140,10 @@ function ChallengePageSkeleton() {
   );
 }
 
-export async function generateMetadata({ params: _params }: ChallengePageProps) {
-  const params = await _params
+export async function generateMetadata({
+  params: _params,
+}: ChallengePageProps) {
+  const params = await _params;
   const result = await getChallengeById({ challengeId: params.challengeId });
 
   if (!result?.data) {
