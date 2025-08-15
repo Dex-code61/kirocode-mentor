@@ -241,39 +241,41 @@ const SidebarContent: React.FC<{
           </ScrollArea>
         </TabsContent>
 
-        <TabsContent value="tests" className="mt-0">
+        <TabsContent value="tests" className="mt-0 h-full">
           <ScrollArea className="h-full">
-            <div className="space-y-4">
+            <div className="space-y-4 pb-4">
               {latestSubmission?.testResults && latestSubmission.testResults.length > 0 ? (
                 <div className="space-y-3">
                   <div className="text-sm font-medium">Latest Test Results</div>
-                  {latestSubmission.testResults.map((result, index) => (
-                    <Card key={index}>
-                      <CardContent className="p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                          {result.passed ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <AlertCircle className="w-4 h-4 text-red-600" />
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                    {latestSubmission.testResults.map((result, index) => (
+                      <Card key={index} className="flex-shrink-0">
+                        <CardContent className="p-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            {result.passed ? (
+                              <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                            )}
+                            <span className="text-sm font-medium">Test {index + 1}</span>
+                            <Badge variant={result.passed ? 'default' : 'destructive'} className="text-xs">
+                              {result.passed ? 'PASSED' : 'FAILED'}
+                            </Badge>
+                          </div>
+                          {result.description && (
+                            <div className="text-xs text-muted-foreground mb-2 break-words">
+                              {result.description}
+                            </div>
                           )}
-                          <span className="text-sm font-medium">Test {index + 1}</span>
-                          <Badge variant={result.passed ? 'default' : 'destructive'} className="text-xs">
-                            {result.passed ? 'PASSED' : 'FAILED'}
-                          </Badge>
-                        </div>
-                        {result.description && (
-                          <div className="text-xs text-muted-foreground mb-2">
-                            {result.description}
-                          </div>
-                        )}
-                        {result.error && (
-                          <div className="text-xs text-red-600 font-mono bg-red-50 dark:bg-red-900/20 p-2 rounded">
-                            {result.error}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                          {result.error && (
+                            <div className="text-xs text-red-600 font-mono bg-red-50 dark:bg-red-900/20 p-2 rounded break-all">
+                              {result.error}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground text-sm py-8">
@@ -284,38 +286,43 @@ const SidebarContent: React.FC<{
               {challenge.testCases && challenge.testCases.length > 0 && (
                 <div className="space-y-3">
                   <Separator />
-                  <div className="text-sm font-medium">Test Cases</div>
+                  <div className="text-sm font-medium">Test Cases (Read-Only)</div>
                   <div className="text-xs text-muted-foreground">
                     Your solution will be tested against these cases:
                   </div>
-                  {challenge.testCases.slice(0, 3).map((testCase, index) => (
-                    <Card key={index}>
-                      <CardContent className="p-3">
-                        <div className="text-xs font-medium mb-2">Test Case {index + 1}</div>
-                        {testCase.description && (
-                          <div className="text-xs text-muted-foreground mb-2">
-                            {testCase.description}
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                    {challenge.testCases.slice(0, 3).map((testCase, index) => (
+                      <Card key={index} className="flex-shrink-0 bg-muted/50">
+                        <CardContent className="p-3">
+                          <div className="text-xs font-medium mb-2 flex items-center gap-2">
+                            Test Case {index + 1}
+                            <Badge variant="outline" className="text-xs">Read-Only</Badge>
                           </div>
-                        )}
-                        <div className="space-y-2">
-                          <div>
-                            <div className="text-xs text-muted-foreground">Input:</div>
-                            <div className="text-xs font-mono bg-muted p-1 rounded">
-                              {JSON.stringify(testCase.input)}
+                          {testCase.description && (
+                            <div className="text-xs text-muted-foreground mb-2 break-words">
+                              {testCase.description}
+                            </div>
+                          )}
+                          <div className="space-y-2">
+                            <div>
+                              <div className="text-xs text-muted-foreground">Input:</div>
+                              <div className="text-xs font-mono bg-background p-1 rounded break-all">
+                                {JSON.stringify(testCase.input)}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground">Expected:</div>
+                              <div className="text-xs font-mono bg-background p-1 rounded break-all">
+                                {JSON.stringify(testCase.expectedOutput)}
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <div className="text-xs text-muted-foreground">Expected:</div>
-                            <div className="text-xs font-mono bg-muted p-1 rounded">
-                              {JSON.stringify(testCase.expectedOutput)}
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                   {challenge.testCases.length > 3 && (
-                    <div className="text-xs text-muted-foreground text-center">
+                    <div className="text-xs text-muted-foreground text-center py-2">
                       ... and {challenge.testCases.length - 3} more test cases
                     </div>
                   )}
