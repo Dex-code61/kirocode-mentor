@@ -227,8 +227,8 @@ export const getAvailableLearningPaths = actionClient
           difficulty: true,
           enrollments: {
             select: {
-              userId: true
-            }
+              userId: true,
+            },
           },
           estimatedHours: true,
           totalEnrollments: true,
@@ -267,7 +267,7 @@ export const getAvailableLearningPaths = actionClient
 export const getLearningPathById = actionClient
   .inputSchema(
     z.object({
-      pathId: z.cuid("Invalid pathID")
+      pathId: z.cuid('Invalid pathID'),
     })
   )
   .action(async ({ parsedInput }) => {
@@ -312,6 +312,7 @@ export const getLearningPathById = actionClient
               status: true,
               progress: true,
               enrolledAt: true,
+              lastAccessedAt: true,
             },
           },
         },
@@ -352,7 +353,7 @@ export const getLearningPathById = actionClient
 export const enrollInLearningPath = actionClient
   .inputSchema(
     z.object({
-      pathId: z.cuid("Invalid pathID"),
+      pathId: z.cuid('Invalid pathID'),
     })
   )
   .action(async ({ parsedInput }) => {
@@ -433,5 +434,408 @@ export const enrollInLearningPath = actionClient
     } catch (error) {
       console.error('Error enrolling in learning path:', error);
       return { success: false, message: 'Failed to enroll in learning path' };
+    }
+  });
+
+export const getModuleById = actionClient
+  .inputSchema(
+    z.object({
+      moduleId: z.string().min(1, 'Module ID is required'),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    try {
+      const session = await getServerSession();
+
+      if (!session?.user?.id) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!prisma) {
+        console.error('Prisma instance is undefined');
+        return null;
+      }
+
+      const module = await prisma.module.findUnique({
+        where: {
+          id: parsedInput.moduleId,
+        },
+        include: {
+          learningPath: {
+            select: {
+              id: true,
+              title: true,
+              category: true,
+              difficulty: true,
+            },
+          },
+          challenges: {
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
+          codeExamples: {
+            orderBy: {
+              order: 'asc',
+            },
+          },
+        },
+      });
+
+      if (!module) {
+        return null;
+      }
+
+      // Check if user is enrolled in the learning path
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_learningPathId: {
+            userId: session.user.id,
+            learningPathId: module.learningPath.id,
+          },
+        },
+      });
+
+      if (!enrollment || enrollment.status !== 'ACTIVE') {
+        throw new Error('Not enrolled in this learning path');
+      }
+
+      // Get user's progress for this module
+      const moduleProgress = await prisma.moduleProgress.findUnique({
+        where: {
+          userId_moduleId: {
+            userId: session.user.id,
+            moduleId: parsedInput.moduleId,
+          },
+        },
+      });
+
+      return {
+        ...module,
+        userProgress: moduleProgress,
+        isEnrolled: true,
+      };
+    } catch (error) {
+      console.error('Error fetching module:', error);
+      return null;
+    }
+  });
+
+export const getChallengeById = actionClient
+  .inputSchema(
+    z.object({
+      challengeId: z.string().min(1, 'Challenge ID is required'),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    try {
+      const session = await getServerSession();
+
+      if (!session?.user?.id) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!prisma) {
+        console.error('Prisma instance is undefined');
+        return null;
+      }
+
+      const challenge = await prisma.challenge.findUnique({
+        where: {
+          id: parsedInput.challengeId,
+        },
+        include: {
+          module: {
+            include: {
+              learningPath: {
+                select: {
+                  id: true,
+                  title: true,
+                },
+              },
+            },
+          },
+          submissions: {
+            where: {
+              userId: session.user.id,
+            },
+            orderBy: {
+              createdAt: 'desc',
+            },
+            take: 1,
+          },
+        },
+      });
+
+      if (!challenge) {
+        return null;
+      }
+
+      // Check if user is enrolled in the learning path
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_learningPathId: {
+            userId: session.user.id,
+            learningPathId: challenge.module.learningPath.id,
+          },
+        },
+      });
+
+      if (!enrollment || enrollment.status !== 'ACTIVE') {
+        throw new Error('Not enrolled in this learning path');
+      }
+
+      return {
+        ...challenge,
+        latestSubmission: challenge.submissions[0] || null,
+        isEnrolled: true,
+      };
+    } catch (error) {
+      console.error('Error fetching challenge:', error);
+      return null;
+    }
+  });
+
+export const submitChallenge = actionClient
+  .inputSchema(
+    z.object({
+      challengeId: z.string().min(1, 'Challenge ID is required'),
+      code: z.string().min(1, 'Code is required'),
+      language: z.enum([
+        'JAVASCRIPT',
+        'TYPESCRIPT',
+        'PYTHON',
+        'JAVA',
+        'CPP',
+        'RUST',
+        'GO',
+      ]),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    try {
+      const session = await getServerSession();
+
+      if (!session?.user?.id) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!prisma) {
+        console.error('Prisma instance is undefined');
+        throw new Error('Database connection error');
+      }
+
+      // Get challenge details
+      const challenge = await prisma.challenge.findUnique({
+        where: {
+          id: parsedInput.challengeId,
+        },
+        include: {
+          module: {
+            include: {
+              learningPath: true,
+            },
+          },
+        },
+      });
+
+      if (!challenge) {
+        throw new Error('Challenge not found');
+      }
+
+      // Check enrollment
+      const enrollment = await prisma.enrollment.findUnique({
+        where: {
+          userId_learningPathId: {
+            userId: session.user.id,
+            learningPathId: challenge.module.learningPath.id,
+          },
+        },
+      });
+
+      if (!enrollment || enrollment.status !== 'ACTIVE') {
+        throw new Error('Not enrolled in this learning path');
+      }
+
+      // Get previous attempts count
+      const previousAttempts = await prisma.codeSubmission.count({
+        where: {
+          userId: session.user.id,
+          challengeId: parsedInput.challengeId,
+        },
+      });
+
+      // Create submission
+      const submission = await prisma.codeSubmission.create({
+        data: {
+          userId: session.user.id,
+          challengeId: parsedInput.challengeId,
+          code: parsedInput.code,
+          language: parsedInput.language,
+          status: 'PENDING',
+          attempts: previousAttempts + 1,
+          kiroAnalysis: {
+            feedback: 'Code submitted successfully. Analysis in progress...',
+            score: null,
+            improvements: [],
+          },
+          improvements: {
+            suggestions: [],
+            priority: 'low',
+            categories: [],
+          },
+          codeQuality: {
+            readability: 0,
+            performance: 0,
+            maintainability: 0,
+            overall: 0,
+          },
+          testResults: {
+            passed: 0,
+            total: 0,
+            results: [],
+          },
+        },
+      });
+
+      // TODO: Here you would typically run the code against test cases
+      // For now, we'll simulate a basic analysis
+      const mockScore = Math.floor(Math.random() * 40) + 60; // Random score between 60-100
+      const passed = mockScore >= 70;
+
+      // Update submission with results
+      await prisma.codeSubmission.update({
+        where: {
+          id: submission.id,
+        },
+        data: {
+          status: 'COMPLETED',
+          score: mockScore,
+          kiroAnalysis: {
+            feedback: passed
+              ? 'Great job! Your solution works correctly.'
+              : 'Your solution needs some improvements. Check the test cases.',
+            score: mockScore,
+            improvements: passed
+              ? []
+              : ['Consider edge cases', 'Optimize for performance'],
+          },
+          improvements: {
+            suggestions: passed
+              ? []
+              : [
+                  'Consider edge cases in your solution',
+                  'Optimize for better performance',
+                  'Add input validation',
+                ],
+            priority: passed ? 'low' : 'medium',
+            categories: passed ? [] : ['logic', 'performance', 'validation'],
+          },
+          codeQuality: {
+            readability: Math.floor(Math.random() * 30) + 70, // 70-100
+            performance: Math.floor(Math.random() * 40) + (passed ? 60 : 40), // Variable based on pass
+            maintainability: Math.floor(Math.random() * 30) + 65, // 65-95
+            overall: mockScore,
+          },
+          testResults: {
+            passed: passed ? 3 : 1,
+            total: 3,
+            results: [
+              { test: 'Basic functionality', passed: true },
+              { test: 'Edge cases', passed },
+              { test: 'Performance', passed },
+            ],
+          },
+        },
+      });
+
+      return {
+        success: true,
+        submissionId: submission.id,
+        score: mockScore,
+        passed,
+        message: passed
+          ? 'Challenge completed successfully!'
+          : 'Keep trying! You can do better.',
+      };
+    } catch (error) {
+      console.error('Error submitting challenge:', error);
+      return {
+        success: false,
+        message: 'Failed to submit challenge',
+      };
+    }
+  });
+
+export const updateModuleProgress = actionClient
+  .inputSchema(
+    z.object({
+      moduleId: z.string().min(1, 'Module ID is required'),
+      status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED']).optional(),
+      completionRate: z.number().min(0).max(100).optional(),
+      timeSpent: z.number().min(0).optional(),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    try {
+      const session = await getServerSession();
+
+      if (!session?.user?.id) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!prisma) {
+        console.error('Prisma instance is undefined');
+        throw new Error('Database connection error');
+      }
+
+      // Update or create module progress
+      const moduleProgress = await prisma.moduleProgress.upsert({
+        where: {
+          userId_moduleId: {
+            userId: session.user.id,
+            moduleId: parsedInput.moduleId,
+          },
+        },
+        update: {
+          ...(parsedInput.status && { status: parsedInput.status }),
+          ...(parsedInput.completionRate !== undefined && {
+            completionRate: parsedInput.completionRate,
+          }),
+          ...(parsedInput.timeSpent !== undefined && {
+            timeSpent: { increment: parsedInput.timeSpent },
+          }),
+          lastAccessedAt: new Date(),
+          ...(parsedInput.status === 'COMPLETED' && {
+            completedAt: new Date(),
+          }),
+        },
+        create: {
+          userId: session.user.id,
+          moduleId: parsedInput.moduleId,
+          status: parsedInput.status || 'IN_PROGRESS',
+          completionRate: parsedInput.completionRate || 0,
+          timeSpent: parsedInput.timeSpent || 0,
+          lastAccessedAt: new Date(),
+          ...(parsedInput.status === 'IN_PROGRESS' && {
+            startedAt: new Date(),
+          }),
+          ...(parsedInput.status === 'COMPLETED' && {
+            startedAt: new Date(),
+            completedAt: new Date(),
+          }),
+        },
+      });
+
+      return {
+        success: true,
+        moduleProgress,
+      };
+    } catch (error) {
+      console.error('Error updating module progress:', error);
+      return {
+        success: false,
+        message: 'Failed to update progress',
+      };
     }
   });

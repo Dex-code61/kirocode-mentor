@@ -11,7 +11,6 @@ import { Clock, Users, Star, ArrowRight } from 'lucide-react';
 import { LearningPath } from '@/types/learningpath.types';
 import { categoryColors, difficultyColors } from '@/style';
 
-
 interface LearningPathCardProps {
   learningPath: LearningPath;
   userId: string;
@@ -19,7 +18,7 @@ interface LearningPathCardProps {
 
 export default function LearningPathCard({
   learningPath,
-  userId
+  userId,
 }: LearningPathCardProps) {
   const categoryColor =
     categoryColors[learningPath.category as keyof typeof categoryColors] ||
@@ -29,9 +28,9 @@ export default function LearningPathCard({
       learningPath.difficulty as keyof typeof difficultyColors
     ] || 'bg-gray-100 text-gray-800';
 
-    const isEnrolled = learningPath.enrollments.some(
-        (enrollment) => enrollment.userId === userId
-      )
+  const isEnrolled = learningPath.enrollments.some(
+    enrollment => enrollment.userId === userId
+  );
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
@@ -74,24 +73,25 @@ export default function LearningPathCard({
       </CardContent>
 
       <CardFooter className="pt-3">
-        {
-            isEnrolled ? (
-                <Button variant="secondary" asChild className="w-full group border border-primary!">
-                <Link href={`/learn/${learningPath.id}/lessons`}>
-                  Continue learning
-                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-            ) :(
-                <Button asChild className="w-full group">
-          <Link href={`/learn/${learningPath.id}`}>
-            Start Learning
-            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </Button>
-            )
-        }
-        
+        {isEnrolled ? (
+          <Button
+            variant="secondary"
+            asChild
+            className="w-full group border border-primary!"
+          >
+            <Link href={`/learn/${learningPath.id}/start`}>
+              Continue learning
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+        ) : (
+          <Button asChild className="w-full group">
+            <Link href={`/learn/${learningPath.id}`}>
+              Start Learning
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
