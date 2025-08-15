@@ -76,7 +76,7 @@ export function ModuleContent({ module, userProgress }: ModuleContentProps) {
             <div className="flex flex-wrap gap-2">
               {module.skills.map((skill, index) => (
                 <Badge key={index} variant="secondary" className="text-xs">
-                  {skill}
+                  {skill.replaceAll("_", " ")}
                 </Badge>
               ))}
             </div>
