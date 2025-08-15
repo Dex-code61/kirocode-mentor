@@ -1,8 +1,10 @@
 'use server';
 
 import { authServer, getServerSession } from '@/lib/auth-server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
+import { actionClient } from '@/lib/safe-action';
 import { headers } from 'next/headers';
+import z from 'zod';
 
 export interface CurrentLearningPathData {
   id: string;
@@ -28,7 +30,7 @@ export interface CurrentLearningPathData {
 export async function getCurrentLearningPath(): Promise<CurrentLearningPathData | null> {
   try {
     // Get current session
-    const session = await getServerSession()
+    const session = await getServerSession();
 
     if (!session?.user?.id) {
       return null;
@@ -163,9 +165,52 @@ export async function updateLearningPathProgress(
   }
 }
 
-export async function getAvailableLearningPaths() {
+export const getAvailableLearningPaths = actionClient.inputSchema(
+  z.object({
+    category: z.enum([
+      'FRONTEND',
+      'BACKEND',
+      'FULLSTACK',
+      'DEVOPS',
+      'MOBILE',
+      'CYBERSECURITY',
+      'DATA_SCIENCE'
+    ]).optional(),
+    difficulty: z.enum([
+      'BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'
+    ]).optional(),
+    search: z.string().optional(),
+    page: z.number().min(1).default(1),
+    limit: z.number().min(1).max(50).default(12),
+  })
+).action(async ({parsedInput}) => {
   try {
+    const whereClause = {
+      ...(parsedInput.category && { category: parsedInput.category }),
+      ...(parsedInput.difficulty && { difficulty: parsedInput.difficulty }),
+        OR: [
+          {title: {
+            contains: parsedInput.search,
+            mode: 'insensitive' as const,
+          }},
+          {description: {
+            contains: parsedInput.search,
+            mode: 'insensitive' as const,
+          }},
+        ]
+    };
+
+    // Get total count for pagination
+    const totalCount = await prisma.learningPath.count({
+      where: whereClause
+    });
+
+    // Calculate pagination
+    const skip = (parsedInput.page - 1) * parsedInput.limit;
+    const totalPages = Math.ceil(totalCount / parsedInput.limit);
+
     const learningPaths = await prisma.learningPath.findMany({
+      where: whereClause,
       select: {
         id: true,
         title: true,
@@ -177,11 +222,31 @@ export async function getAvailableLearningPaths() {
         averageRating: true,
       },
       orderBy: [{ totalEnrollments: 'desc' }, { title: 'asc' }],
+      skip,
+      take: parsedInput.limit,
     });
-
-    return learningPaths;
+    
+    return {
+      data: {
+        learningPaths,
+        pagination: {
+          currentPage: parsedInput.page,
+          totalPages,
+          totalCount,
+          limit: parsedInput.limit,
+          hasNextPage: parsedInput.page < totalPages,
+          hasPreviousPage: parsedInput.page > 1,
+        }
+      },
+      message: 'Learning paths fetched successfully',
+      error: null
+    };
   } catch (error) {
-    console.error('Error fetching available learning paths:', error);
-    return [];
+    console.error('Error fetcailable learning paths:', error);
+    return {
+      data: null,
+      message: 'Failed to fetch learning paths',
+      error
+    };
   }
-}
+})

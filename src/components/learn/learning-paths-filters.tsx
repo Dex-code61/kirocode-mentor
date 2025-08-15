@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQueryStates, parseAsString } from 'nuqs';
+import { useQueryStates, parseAsString, parseAsInteger } from 'nuqs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +22,8 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
+import { useDebounce } from '@/hooks/use-debounce';
+import { useEffect } from 'react';
 
 // Validation schema
 const searchSchema = z.object({
@@ -58,6 +60,7 @@ export function LearningPathsFilters() {
     search: parseAsString.withDefault(''),
     category: parseAsString.withDefault(''),
     difficulty: parseAsString.withDefault(''),
+    page: parseAsInteger.withDefault(1),
   });
 
   // React Hook Form with Zod validation
@@ -67,11 +70,19 @@ export function LearningPathsFilters() {
       search: queryState.search,
     },
   });
+  const debounceSearchValue = useDebounce(form.watch("search"), 500);
 
-  const onSubmit = (data: SearchFormData) => {
+  useEffect(() => onSubmit(), [debounceSearchValue]);
+  const onSubmit = () => {
+    try {
+      searchSchema.parse({ search: debounceSearchValue });
+    } catch (error) {
+      return;
+    }
     setQueryState({
       ...queryState,
-      search: data.search || null,
+      page: 1,
+      search: debounceSearchValue || null,
     });
   };
 
@@ -107,14 +118,7 @@ export function LearningPathsFilters() {
                         placeholder="Search learning paths..."
                         className="pl-10"
                         {...field}
-                        onChange={e => {
-                          field.onChange(e);
-                          // Auto-submit on change with debounce
-                          const timeoutId = setTimeout(() => {
-                            form.handleSubmit(onSubmit)();
-                          }, 500);
-                          return () => clearTimeout(timeoutId);
-                        }}
+                        onChange={field.onChange}
                       />
                     </div>
                   </FormControl>
@@ -131,6 +135,7 @@ export function LearningPathsFilters() {
             onValueChange={value =>
               setQueryState({
                 ...queryState,
+                page: 1,
                 category: value === 'all' ? null : value,
               })
             }
@@ -154,6 +159,7 @@ export function LearningPathsFilters() {
             onValueChange={value =>
               setQueryState({
                 ...queryState,
+                page: 1,
                 difficulty: value === 'all' ? null : value,
               })
             }

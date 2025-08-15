@@ -1,49 +1,62 @@
-import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { Clock, Users, Star, ArrowRight } from 'lucide-react'
+import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from '@/components/ui/card';
+import { Clock, Users, Star, ArrowRight } from 'lucide-react';
+import { LearningPath } from '@/types/learningpath.types';
 
-interface LearningPath {
-  id: string
-  title: string
-  description: string
-  category: string
-  difficulty: string
-  estimatedHours: number
-  totalEnrollments: number
-  averageRating: number | null
-}
 
 interface LearningPathCardProps {
-  learningPath: LearningPath
+  learningPath: LearningPath;
 }
 
 const categoryColors = {
-  FRONTEND: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  BACKEND: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  FULLSTACK: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-  MOBILE: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-  DATA_SCIENCE: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
-  DEVOPS: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  CYBERSECURITY: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-}
+  FRONTEND:
+    'text-blue-800 bg-blue-500/30 dark:text-blue-300 border border-blue-500',
+  BACKEND:
+    'text-green-800 bg-green-500/30 dark:text-green-300 border border-green-500',
+  FULLSTACK:
+    'text-purple-800 bg-purple-500/30 dark:text-purple-300 border border-purple-500',
+  MOBILE:
+    'text-orange-800 bg-orange-500/30 dark:text-orange-300 border border-orange-500',
+  DATA_SCIENCE:
+    'text-pink-800 bg-pink-500/30 dark:text-pink-300 border border-pink-500',
+  DEVOPS:
+    'text-yellow-800 bg-yellow-500/30 dark:text-yellow-300 border border-yellow-500',
+  CYBERSECURITY:
+    'text-red-800 bg-red-500/30 dark:text-red-300 border border-red-500',
+};
 
 const difficultyColors = {
-  BEGINNER: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300',
-  INTERMEDIATE: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300',
-  ADVANCED: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-  EXPERT: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-}
+  BEGINNER:
+    'text-blue-800 dark:text-blue-300 bg-blue-500/30 border border-blue-500',
+  INTERMEDIATE:
+    'text-yellow-800 dark:text-yellow-300 bg-yellow-500/30 border border-yellow-500',
+  ADVANCED:
+    'text-orange-800 dark:text-orange-300 bg-orange-500/30 border border-orange-500',
+  EXPERT: 'text-red-800 dark:text-red-300 bg-red-500/30 border border-red-500',
+};
 
-export default function LearningPathCard({ learningPath }: LearningPathCardProps) {
-  const categoryColor = categoryColors[learningPath.category as keyof typeof categoryColors] || 'bg-gray-100 text-gray-800'
-  const difficultyColor = difficultyColors[learningPath.difficulty as keyof typeof difficultyColors] || 'bg-gray-100 text-gray-800'
+export default function LearningPathCard({
+  learningPath,
+}: LearningPathCardProps) {
+  const categoryColor =
+    categoryColors[learningPath.category as keyof typeof categoryColors] ||
+    'bg-gray-100 text-gray-800';
+  const difficultyColor =
+    difficultyColors[
+      learningPath.difficulty as keyof typeof difficultyColors
+    ] || 'bg-gray-100 text-gray-800';
 
   return (
     <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
-        <div className="flex justify-between items-start mb-2">
+        <div className="flex justify-start items-center gap-1 mb-2">
           <Badge className={categoryColor}>
             {learningPath.category.replace('_', ' ')}
           </Badge>
@@ -66,7 +79,7 @@ export default function LearningPathCard({ learningPath }: LearningPathCardProps
             <Clock className="w-4 h-4" />
             <span>{learningPath.estimatedHours}h</span>
           </div>
-          
+
           <div className="flex items-center gap-1">
             <Users className="w-4 h-4" />
             <span>{learningPath.totalEnrollments}</span>
@@ -90,5 +103,5 @@ export default function LearningPathCard({ learningPath }: LearningPathCardProps
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
