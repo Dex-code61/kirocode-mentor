@@ -21,7 +21,11 @@ import { signInSchema, type SignIn } from '@/utils/validation';
 import { signIn } from '@/lib/auth-client';
 import { toast } from 'sonner';
 
-export function SignInForm() {
+export function SignInForm(
+  {onSuccess}:{
+    onSuccess: (name: string) => void
+  }
+) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -48,7 +52,10 @@ export function SignInForm() {
         toast.error(result.error.message || 'Sign in failed');
       } else {
         toast.success('Sign in successful');
-        router.push('/dashboard');
+        if(onSuccess) onSuccess(result.data.user.name)
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 5000);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');

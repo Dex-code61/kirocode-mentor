@@ -1,20 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useSession } from "@/lib/auth-client";
 import { Code } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
+import SessionButton2 from "../custom/session-button-2";
 
 export function Navbar() {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith('/auth');
-  const {data: session, isPending} = useSession()
-
-  if (isPending) {
-    return <NavbarSkeleton />
-  }
 
 
   return (
@@ -60,11 +55,11 @@ export function Navbar() {
             </>
           ) : (
             <>
-              { !session && <Button variant="ghost" asChild>
-                <Link href="/auth/signin">Sign In</Link>
-              </Button>}
+              <SessionButton2 asChild variant="ghost">
+              <Link href="/auth/signin">Sign In</Link>
+              </SessionButton2>
               <Button asChild>
-                <Link href={session ? "/dashboard" : "/auth/signup"}>Get Started</Link>
+                <Link href={"/dashboard"}>Get Started</Link>
               </Button>
             </>
           )}
@@ -75,26 +70,26 @@ export function Navbar() {
 }
 
 
-const NavbarSkeleton = () => {
-  return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Skeleton className="w-6 h-6" />
-          <Skeleton className="h-6 w-20" />
-        </div>
+// const NavbarSkeleton = () => {
+//   return (
+//     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+//       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+//         <div className="flex items-center space-x-2">
+//           <Skeleton className="w-6 h-6" />
+//           <Skeleton className="h-6 w-20" />
+//         </div>
   
-        <nav className="hidden md:flex items-center space-x-6">
-          <Skeleton className="h-4 w-16" />
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-4 w-14" />
-        </nav>
+//         <nav className="hidden md:flex items-center space-x-6">
+//           <Skeleton className="h-4 w-16" />
+//           <Skeleton className="h-4 w-20" />
+//           <Skeleton className="h-4 w-14" />
+//         </nav>
         
-        <div className="flex items-center space-x-3">
-          <Skeleton className="h-9 w-16" />
-          <Skeleton className="h-9 w-20" />
-        </div>
-      </div>
-    </header>
-  );
-}
+//         <div className="flex items-center space-x-3">
+//           <Skeleton className="h-9 w-16" />
+//           <Skeleton className="h-9 w-20" />
+//         </div>
+//       </div>
+//     </header>
+//   );
+// }

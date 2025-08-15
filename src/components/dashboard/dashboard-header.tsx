@@ -5,7 +5,7 @@ import { Code, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "@/lib/auth-client";
 import { ModeToggle } from "../mode-toggle";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 
@@ -24,6 +24,7 @@ export function DashboardHeader() {
   const path = usePathname()
   const handleSignOut = async () => {
     await signOut();
+    redirect("/")
   };
 
   return (

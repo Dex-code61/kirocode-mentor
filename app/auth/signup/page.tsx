@@ -25,15 +25,11 @@ export default function SignUpPage() {
         success: true,
         email
     });
-    // Redirect after a short delay to show success message
-    // setTimeout(() => {
-    //   router.push("/auth/signin");
-    // }, 2000);
   };
 
   if (data.success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <AuthBackgroundWrapper>
         <Navbar />
         <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
           <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-lg w-full max-w-md">
@@ -45,13 +41,15 @@ export default function SignUpPage() {
               <p className="text-muted-foreground mb-4">
                 We have sent a verification mail to {data.email}. Click the link in your mail to verify your account.
               </p>
-              <Button onClick={() => router.push("/auth/signin")} className="w-full">
-                Go to Signin page
+              <Button asChild className="w-full">
+                <Link href={`mailto:${data.email}`}>
+                Check my Mailbox</Link>
               </Button>
             </div>
           </div>
         </div>
-      </div>
+        </AuthBackgroundWrapper>
+
     );
   }
 

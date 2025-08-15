@@ -8,10 +8,48 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Navbar } from "@/components/layout/navbar";
 import Link from "next/link";
 import { AuthBackgroundWrapper } from "@/components/layout/auth-background-wrapper";
-import { Card, CardContent } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Check } from "lucide-react";
 
 export default function SignInPage() {
   const [socialError, setSocialError] = useState("");
+  const router = useRouter()
+  const [data, setData] = useState({
+    name: "",
+    success: false
+  });
+
+  const handleSignUpSuccess = (name: string) => {
+    setData({
+        success: true,
+        name
+    });
+  };
+
+  if (data.success) {
+    return (
+      <AuthBackgroundWrapper>
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
+          <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-lg p-8 shadow-lg w-full max-w-md">
+            <div className="text-center">
+              <Button size="icon" className="mb-3" variant="outline">
+                <Check className="w-8 h-8 text-green-600" />
+              </Button>
+              <h2 className="text-2xl font-bold mb-2">Welcomme back {data.name} !</h2>
+              <p className="text-muted-foreground mb-4">
+                You have successfully login {data.name}. Happy to see you again ❤.
+              </p>
+              <Button onClick={() => router.push("/dashboard")} className="w-full">
+                Go to Dashboard
+              </Button>
+            </div>
+          </div>
+        </div>
+      </AuthBackgroundWrapper>
+    );
+  }
 
   return (
     <AuthBackgroundWrapper>
@@ -50,7 +88,7 @@ export default function SignInPage() {
             </div>
 
             {/* Email Login Form */}
-            <SignInForm />
+            <SignInForm onSuccess={handleSignUpSuccess} />
 
             <div className="text-center mt-4">
               <Link

@@ -5,19 +5,16 @@ import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 
-export default function SessionButton(props: ComponentProps<typeof Button>){
+export default function SessionButton2(props: ComponentProps<typeof Button>){
     const {data: session, isPending, error} = useSession()
-    const router = useRouter();
-
+    const router = useRouter()
     const {variant, onClick, ...rest} = props
     if(isPending) return <Button {...props} disabled />
-    if(error) return <Button {...rest} variant="destructive" onClick={(e) => {
+    if(!session) return <Button {...props} />
+    if(error) return <Button variant="destructive" {...rest} onClick={(e) => {
         e.preventDefault()
         router.refresh()
-    }} />
-    if(session) return <Button {...props} />
-    return <Button {...rest} variant={variant} onClick={(e) => {
-            e.preventDefault()
-            router.push("/auth/signin")
-        }} />
+    }}  />
+
+    return null
 }
