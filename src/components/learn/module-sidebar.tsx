@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { updateModuleProgress } from '@/actions/cursus.actions'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
 interface ModuleSidebarProps {
   pathId: string
@@ -198,9 +199,9 @@ export function ModuleSidebar({ pathId, module, userProgress }: ModuleSidebarPro
                   </div>
                 </div>
                 <Button size="sm" variant="ghost" asChild>
-                  <a href={`/learn/${pathId}/challenge/${challenge.id}`}>
+                  <Link href={`/learn/${pathId}/challenge/${challenge.id}`}>
                     <ArrowRight className="w-3 h-3" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
             ))}
@@ -244,17 +245,17 @@ export function ModuleSidebar({ pathId, module, userProgress }: ModuleSidebarPro
         </CardHeader>
         <CardContent className="space-y-2">
           <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-            <a href={`/learn/${pathId}/start`}>
+            <Link href={`/learn/${pathId}/start`}>
               <BookOpen className="w-4 h-4 mr-2" />
               Back to Course
-            </a>
+            </Link>
           </Button>
           
           <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-            <a href="/dashboard">
+            <Link href="/dashboard">
               <Target className="w-4 h-4 mr-2" />
               Dashboard
-            </a>
+            </Link>
           </Button>
         </CardContent>
       </Card>

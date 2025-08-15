@@ -5,23 +5,23 @@ async function main() {
 
   console.log('📛 Deleting all data...');
   // Delete in correct order due to foreign key constraints
-  await prisma.userAchievement.deleteMany();
-  await prisma.mentorFeedback.deleteMany();
-  await prisma.codeSubmission.deleteMany();
-  await prisma.mentorSession.deleteMany();
-  await prisma.moduleProgress.deleteMany();
-  await prisma.enrollment.deleteMany();
-  await prisma.userProgress.deleteMany();
-  await prisma.collaborativeSession.deleteMany();
-  await prisma.codeExample.deleteMany();
-  await prisma.challenge.deleteMany();
-  await prisma.module.deleteMany();
-  await prisma.learningPath.deleteMany();
-  await prisma.exercise.deleteMany();
-  await prisma.skillAssessment.deleteMany();
-  await prisma.userPreferences.deleteMany();
-  await prisma.learningProfile.deleteMany();
-  await prisma.userProfile.deleteMany();
+  // await prisma.userAchievement.deleteMany();
+  // await prisma.mentorFeedback.deleteMany();
+  // await prisma.codeSubmission.deleteMany();
+  // await prisma.mentorSession.deleteMany();
+  // await prisma.moduleProgress.deleteMany();
+  // await prisma.enrollment.deleteMany();
+  // await prisma.userProgress.deleteMany();
+  // await prisma.collaborativeSession.deleteMany();
+  // await prisma.codeExample.deleteMany();
+  // await prisma.challenge.deleteMany();
+  // await prisma.module.deleteMany();
+  // await prisma.learningPath.deleteMany();
+  // await prisma.exercise.deleteMany();
+  // await prisma.skillAssessment.deleteMany();
+  // await prisma.userPreferences.deleteMany();
+  // await prisma.learningProfile.deleteMany();
+  // await prisma.userProfile.deleteMany();
   // await prisma.session.deleteMany();
   // await prisma.account.deleteMany();
   // await prisma.verification.deleteMany();
@@ -34,7 +34,7 @@ async function main() {
     prisma.user.create({
       data: {
         id: 'user_1',
-        email: 'john.doe@example.com',
+        email: 'john.doe@example1.com',
         name: 'John Doe',
         emailVerified: true,
         image:
@@ -93,7 +93,7 @@ async function main() {
     prisma.user.create({
       data: {
         id: 'user_2',
-        email: 'jane.smith@example.com',
+        email: 'jane.smith@example1.com',
         name: 'Jane Smith',
         emailVerified: true,
         image:

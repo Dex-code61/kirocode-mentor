@@ -387,7 +387,7 @@ export const enrollInLearningPath = actionClient
           };
         } else {
           // Reactivate enrollment
-          await prisma.enrollment.update({
+          const enr = await prisma.enrollment.update({
             where: {
               id: existingEnrollment.id,
             },
@@ -397,6 +397,7 @@ export const enrollInLearningPath = actionClient
             },
           });
           return {
+            data: enr,
             success: true,
             message: 'Enrollment reactivated successfully',
           };

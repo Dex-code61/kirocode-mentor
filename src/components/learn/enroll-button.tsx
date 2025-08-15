@@ -23,7 +23,7 @@ export function EnrollButton({ pathId }: EnrollButtonProps) {
       
       if (result?.data?.success) {
         toast.success(result.data.message || 'Successfully enrolled!')
-        router.push('/dashboard') // Redirect to dashboard
+        router.push(`/learn/${result.data.data?.learningPathId}`) // Redirect to dashboard
       } else {
         toast.error(result?.data?.message || 'Failed to enroll')
       }

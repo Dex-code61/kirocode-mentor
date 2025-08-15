@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Clock, Users, Star, BookOpen, Target, Award, ChevronRight } from 'lucide-react'
 import { EnrollButton } from './enroll-button'
 import { categoryColors, difficultyColors } from '@/style'
+import Link from 'next/link'
 
 interface LearningPathHeaderProps {
   learningPath: {
@@ -39,7 +40,7 @@ export function LearningPathHeader({ learningPath }: LearningPathHeaderProps) {
     <div className="space-y-6">
       {/* Breadcrumb */}
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-        <a href="/learn" className="hover:text-foreground">Learn</a>
+        <Link href="/learn" className="hover:text-foreground">Learn</Link>
         <span>/</span>
         <span className="text-foreground">{learningPath.title}</span>
       </nav>
@@ -106,9 +107,10 @@ export function LearningPathHeader({ learningPath }: LearningPathHeaderProps) {
 
         {
           learningPath.isEnrolled ? (
-            <Button className="w-full md:w-auto">
+            <Button asChild className="w-full md:w-auto">
+              <Link href={`/learn/${learningPath.id}/start`}>
               Continue Learning
-              <ChevronRight />
+              <ChevronRight /></Link>
             </Button>
           ) : (
           <EnrollButton pathId={learningPath.id} />

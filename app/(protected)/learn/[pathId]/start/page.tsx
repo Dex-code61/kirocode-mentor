@@ -5,6 +5,7 @@ import { getServerSession } from '@/lib/auth-server'
 import { ModulesList } from '@/components/learn/modules-list'
 import { LearningPathProgress } from '@/components/learn/learning-path-progress'
 import { Skeleton } from '@/components/ui/skeleton'
+import Link from 'next/link'
 
 interface StartLearningPageProps {
   params: {
@@ -51,9 +52,9 @@ async function StartLearningContent({ pathId }: { pathId: string }) {
       {/* Header */}
       <div className="space-y-4">
         <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <a href="/learn" className="hover:text-foreground">Learn</a>
+          <Link href="/learn" className="hover:text-foreground">Learn</Link>
           <span>/</span>
-          <a href={`/learn/${pathId}`} className="hover:text-foreground">{learningPath.title}</a>
+          <Link href={`/learn/${pathId}`} className="hover:text-foreground">{learningPath.title}</Link>
           <span>/</span>
           <span className="text-foreground">Start Learning</span>
         </nav>
