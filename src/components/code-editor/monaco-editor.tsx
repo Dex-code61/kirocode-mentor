@@ -164,16 +164,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
     const newCode = value || '';
     setCode(newCode);
     onCodeChange?.(newCode);
-
-    // Trigger real-time analysis with debounce
-    if (realTimeAnalysis && onAnalysisRequest) {
-      const timeoutId = setTimeout(() => {
-        onAnalysisRequest();
-      }, 1000);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [onCodeChange, onAnalysisRequest, realTimeAnalysis]);
+  }, [onCodeChange]);
 
   // Update decorations when analysis changes
   useEffect(() => {
@@ -223,7 +214,7 @@ export const MonacoEditor: React.FC<MonacoEditorProps> = ({
 
     const decorationIds = editor.deltaDecorations([], newDecorations);
     setDecorations(decorationIds);
-  }, [analysis, decorations]);
+  }, [analysis]); // Removed 'decorations' from dependency array to prevent infinite loop
 
   // Format code
   const formatCode = useCallback(() => {

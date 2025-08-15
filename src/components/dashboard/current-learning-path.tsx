@@ -3,8 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Target, Play } from "lucide-react";
+import Link from "next/link";
 
 interface CurrentLearningPathProps {
+  id: string;
   title?: string;
   module?: string;
   progress?: number;
@@ -13,6 +15,7 @@ interface CurrentLearningPathProps {
 }
 
 export function CurrentLearningPath({ 
+  id = "react-advanced-patterns",
   title = "React Advanced Patterns",
   module = "Module 3: Custom Hooks & Context",
   progress = 65,
@@ -42,9 +45,10 @@ export function CurrentLearningPath({
           <Progress value={progress} className="w-full" />
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{progress}% Complete</span>
-            <Button size="sm">
+            <Button asChild size="sm">
+              <Link href={`/learn/${id}/start`}>
               Continue Learning
-              <Play className="w-4 h-4 ml-2" />
+              <Play className="w-4 h-4 ml-2" /></Link>
             </Button>
           </div>
         </div>

@@ -9,14 +9,14 @@ export default function SessionButton(props: ComponentProps<typeof Button>){
     const {data: session, isPending, error} = useSession()
     const router = useRouter();
 
-    const {variant, onClick, ...rest} = props
+    const {onClick, ...rest} = props
     if(isPending) return <Button {...props} disabled />
-    if(error) return <Button {...rest} variant="destructive" onClick={(e) => {
+    if(error) return <Button {...rest} onClick={(e) => {
         e.preventDefault()
         router.refresh()
     }} />
     if(session) return <Button {...props} />
-    return <Button {...rest} variant={variant} onClick={(e) => {
+    return <Button {...rest} onClick={(e) => {
             e.preventDefault()
             router.push("/auth/signin")
         }} />

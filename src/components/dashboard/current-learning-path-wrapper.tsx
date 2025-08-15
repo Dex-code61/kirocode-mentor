@@ -26,6 +26,7 @@ async function CurrentLearningPathContent() {
 
   return (
     <CurrentLearningPath
+    id={learningPathData.id}
       title={learningPathData.title}
       module={learningPathData.currentModule 
         ? `Module ${learningPathData.currentModule.order}: ${learningPathData.currentModule.title}`

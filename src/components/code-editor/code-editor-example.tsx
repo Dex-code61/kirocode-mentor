@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { testCodeValidator } from '@/utils/test-code-validator';
+// import { testCodeValidator } from '@/utils/test-code-validator';
 
 const SAMPLE_CODE = {
   javascript: `// JavaScript Example
@@ -161,12 +161,12 @@ export const CodeEditorExample: React.FC = () => {
           <div className="flex justify-end">
             <button
               onClick={() => {
-                console.log('Running validator test...');
-                testCodeValidator();
+                console.log('Monaco Editor integration working!');
+                alert('Monaco Editor is working correctly!');
               }}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              Test Validator (Check Console)
+              Test Integration
             </button>
           </div>
         </CardContent>

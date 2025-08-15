@@ -1,78 +1,94 @@
-import { Suspense } from 'react'
-import { notFound, redirect } from 'next/navigation'
-import { getChallengeById } from '@/actions/cursus.actions'
-import { getServerSession } from '@/lib/auth-server'
-// import { ChallengeEditor } from '@/components/learn/challenge-editor'
-// import { ChallengeHeader } from '@/components/learn/challenge-header'
-// import { ChallengeSidebar } from '@/components/learn/challenge-sidebar'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Suspense } from 'react';
+import { notFound, redirect } from 'next/navigation';
+import { getChallengeById } from '@/actions/cursus.actions';
+import { getServerSession } from '@/lib/auth-server';
+import { ChallengeEditor } from '@/components/learn/challenge-editor';
+import { ChallengeHeader } from '@/components/learn/challenge-header';
+import { ChallengeSidebar } from '@/components/learn/challenge-sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
+import { mapSubmissionForComponent } from '@/utils/submission-mapper';
+import { safeMapChallenge } from '@/utils/challenge-validator';
 
 interface ChallengePageProps {
-  params: {
-    pathId: string
-    challengeId: string
-  }
+  params: Promise<{
+    pathId: string;
+    challengeId: string;
+  }>
 }
 
-export default async function ChallengePage({ params }: ChallengePageProps) {
+export default async function ChallengePage({ params: _params }: ChallengePageProps) {
+  const params = await _params
   return (
     <div className="min-h-screen bg-background">
       <Suspense fallback={<ChallengePageSkeleton />}>
-        <ChallengePageContent pathId={params.pathId} challengeId={params.challengeId} />
+        <ChallengePageContent
+          pathId={params.pathId}
+          challengeId={params.challengeId}
+        />
       </Suspense>
     </div>
-  )
+  );
 }
 
-async function ChallengePageContent({ pathId, challengeId }: { pathId: string, challengeId: string }) {
-  const session = await getServerSession()
-  
+async function ChallengePageContent({
+  pathId,
+  challengeId,
+}: {
+  pathId: string;
+  challengeId: string;
+}) {
+  const session = await getServerSession();
+
   if (!session?.user?.id) {
-    redirect('/auth/signin')
+    redirect('/auth/signin');
   }
 
-  const result = await getChallengeById({ challengeId })
-  
+  const result = await getChallengeById({ challengeId });
+
   if (!result?.data) {
-    notFound()
+    notFound();
   }
 
-  const challenge = result.data
+  const challenge = result.data;
 
   if (!challenge.isEnrolled) {
-    redirect(`/learn/${pathId}/unauthorized`)
+    redirect(`/learn/${pathId}/unauthorized`);
   }
+
+  // Map the database data to component-expected format with validation
+  const mappedChallenge = safeMapChallenge(challenge, challengeId);
+  const mappedSubmission = mapSubmissionForComponent(
+    challenge.latestSubmission
+  );
 
   return (
     <div className="flex h-screen">
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        {/* <ChallengeHeader 
+        <ChallengeHeader
           pathId={pathId}
-          challenge={challenge}
-          latestSubmission={challenge.latestSubmission}
-        /> */}
+          challenge={mappedChallenge}
+          latestSubmission={mappedSubmission}
+        />
 
         {/* Editor */}
         <div className="flex-1">
-          {/* <ChallengeEditor 
-            challenge={challenge}
-            latestSubmission={challenge.latestSubmission}
-          /> */}
+          <ChallengeEditor
+            challenge={mappedChallenge}
+            latestSubmission={mappedSubmission}
+          />
         </div>
       </div>
 
       {/* Sidebar */}
-      <div className="w-96 border-l bg-muted/30">
-        {/* <ChallengeSidebar 
-          pathId={pathId}
-          challenge={challenge}
-          latestSubmission={challenge.latestSubmission}
-        /> */}
-      </div>
+      <ChallengeSidebar
+        pathId={pathId}
+        challenge={mappedChallenge}
+        latestSubmission={mappedSubmission}
+      />
     </div>
-  )
+  );
 }
 
 function ChallengePageSkeleton() {
@@ -104,20 +120,21 @@ function ChallengePageSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export async function generateMetadata({ params }: ChallengePageProps) {
-  const result = await getChallengeById({ challengeId: params.challengeId })
-  
+export async function generateMetadata({ params: _params }: ChallengePageProps) {
+  const params = await _params
+  const result = await getChallengeById({ challengeId: params.challengeId });
+
   if (!result?.data) {
     return {
       title: 'Challenge | KiroCode Mentor',
-    }
+    };
   }
 
   return {
     title: `${result.data.title} | ${result.data.module.learningPath.title} | KiroCode Mentor`,
     description: result.data.description,
-  }
+  };
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { MonacoEditor } from './monaco-editor';
 import { CodeAnalysisPanel } from './code-analysis-panel';
@@ -19,7 +19,7 @@ import {
   Zap
 } from 'lucide-react';
 import { CodeAnalysis, CodeError, CodeWarning, CodeSuggestion } from '@/types';
-import { validateCode, ValidationContext } from '@/utils/code-validator';
+import { validateCode, ValidationContext } from '@/utils/code-validator-fixed';
 import { formatCode } from '@/utils/code-formatter';
 
 export interface CodeEditorWithAnalysisProps {
@@ -54,13 +54,17 @@ export const CodeEditorWithAnalysis: React.FC<CodeEditorWithAnalysisProps> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showAnalysisPanel, setShowAnalysisPanel] = useState(showAnalysis);
   const [activeTab, setActiveTab] = useState('editor');
+  
+  // Refs pour gérer le debounce de manière optimisée
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isComponentMountedRef = useRef(true);
 
-  // Validation context
-  const validationContext: ValidationContext = {
+  // Validation context (memoized to prevent infinite re-renders)
+  const validationContext = useMemo<ValidationContext>(() => ({
     language,
     userLevel,
     exerciseType,
-  };
+  }), [language, userLevel, exerciseType]);
 
   // Handle code changes
   const handleCodeChange = useCallback((newCode: string) => {
@@ -90,22 +94,44 @@ export const CodeEditorWithAnalysis: React.FC<CodeEditorWithAnalysisProps> = ({
     }
   }, [code, validationContext]);
 
-  // Auto-analyze on code changes (with debounce)
+  // Auto-analyze on code changes (with optimized debounce)
   useEffect(() => {
-    if (!realTimeAnalysis) return;
+    if (!realTimeAnalysis || !code.trim()) return;
 
-    const timeoutId = setTimeout(() => {
-      performAnalysis();
-    }, 1000);
+    // Clear previous timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
 
-    return () => clearTimeout(timeoutId);
-  }, [code, realTimeAnalysis, performAnalysis]);
+    // Set new timeout with longer delay to prevent crashes
+    debounceTimeoutRef.current = setTimeout(() => {
+      if (isComponentMountedRef.current) {
+        performAnalysis();
+      }
+    }, 2000); // Increased to 2 seconds for better performance
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [code, realTimeAnalysis]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isComponentMountedRef.current = false;
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Handle running code
   const handleRunCode = useCallback(() => {
     onCodeRun?.(code);
     performAnalysis();
-  }, [code, onCodeRun, performAnalysis]);
+  }, [code, onCodeRun]); // Removed performAnalysis from dependencies
 
   // Handle saving code
   const handleSaveCode = useCallback(() => {
