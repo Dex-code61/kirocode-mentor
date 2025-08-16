@@ -343,7 +343,7 @@ export const EnhancedChallengeEditor: React.FC<EnhancedChallengeEditorProps> = (
             </div>
             
             {/* Compter le temps passé */}
-            <ChallengeTimeOut estimatedTime={8} challengeId={challengeId} />
+            <ChallengeTimeOut estimatedTime={estimatedTime} challengeId={challengeId} />
           </div>
         </CardHeader>
       </Card>
