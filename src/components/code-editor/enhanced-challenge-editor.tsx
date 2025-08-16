@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { MonacoEditor } from './monaco-editor';
+import { EnhancedMonacoEditor } from './enhanced-monaco-editor';
 import { TestResultsPanel } from './test-results-panel';
 import { UnitTestEditor } from './unit-test-editor';
 import { Button } from '@/components/ui/button';
@@ -371,16 +372,22 @@ export const EnhancedChallengeEditor: React.FC<EnhancedChallengeEditorProps> = (
           </TabsList>
 
           <TabsContent value="editor" className="flex-1 m-0">
-            <MonacoEditor
+            <EnhancedMonacoEditor
               initialCode={code}
               language={language}
               onCodeChange={handleCodeChange}
               onAnalysisRequest={() => performAnalysis()}
-              realTimeAnalysis={false}
+              realTimeAnalysis={true}
               readOnly={readOnly}
-              analysis={analysis}
               height="100%"
               className="h-full"
+              userLevel={userLevel}
+              showFeedbackPanel={true}
+              exerciseContext={{
+                expectedPatterns: [],
+                difficulty: 1,
+                topic: 'coding',
+              }}
             />
           </TabsContent>
 
@@ -406,16 +413,22 @@ export const EnhancedChallengeEditor: React.FC<EnhancedChallengeEditorProps> = (
           <TabsContent value="split" className="flex-1 m-0">
             <ResizablePanelGroup direction="horizontal" className="h-full">
               <ResizablePanel defaultSize={50} minSize={30}>
-                <MonacoEditor
+                <EnhancedMonacoEditor
                   initialCode={code}
                   language={language}
                   onCodeChange={handleCodeChange}
                   onAnalysisRequest={() => performAnalysis()}
-                  realTimeAnalysis={false}
+                  realTimeAnalysis={true}
                   readOnly={readOnly}
-                  analysis={analysis}
                   height="100%"
                   className="h-full"
+                  userLevel={userLevel}
+                  showFeedbackPanel={false}
+                  exerciseContext={{
+                    expectedPatterns: [],
+                    difficulty: 1,
+                    topic: 'coding',
+                  }}
                 />
               </ResizablePanel>
               
