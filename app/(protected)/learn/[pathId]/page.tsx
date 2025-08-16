@@ -14,7 +14,7 @@ interface LearningPathPageProps {
 }
 
 export default async function LearningPathPage({ params }: LearningPathPageProps) {
-    const { pathId } = await params
+    const pathId = (await params).pathId
   return (
     <div className="container mx-auto px-4 py-8">
       <Suspense fallback={<LearningPathSkeleton />}>

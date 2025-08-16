@@ -54,7 +54,7 @@ export const ChallengeSidebar: React.FC<ChallengeSidebarProps> = ({
 
         {/* Mobile modal/sheet */}
         {isOpen && (
-          <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setIsOpen(false)}>
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"  onClick={() => setIsOpen(false)}>
             <div 
               className="fixed bottom-0 left-0 right-0 bg-background rounded-t-lg max-h-[80vh] overflow-hidden"
               onClick={(e) => e.stopPropagation()}
@@ -65,7 +65,7 @@ export const ChallengeSidebar: React.FC<ChallengeSidebarProps> = ({
                   <X className="w-4 h-4" />
                 </Button>
               </div>
-              <div className="overflow-y-auto max-h-[calc(80vh-80px)]">
+              <div className="overflow-y-auto overflow-x-hidden hidden-scrollbar max-h-[calc(80vh-80px)]">
                 <SidebarContent 
                   challenge={challenge}
                   latestSubmission={latestSubmission}

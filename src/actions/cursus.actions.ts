@@ -441,7 +441,8 @@ export const enrollInLearningPath = actionClient
 export const getModuleById = actionClient
   .inputSchema(
     z.object({
-      moduleId: z.string().min(1, 'Module ID is required'),
+      moduleId: z.cuid('Module ID is invalid'),
+      pathId: z.cuid("Path ID is not valid")
     })
   )
   .action(async ({ parsedInput }) => {
@@ -457,33 +458,51 @@ export const getModuleById = actionClient
         return null;
       }
 
-      const module = await prisma.module.findUnique({
-        where: {
-          id: parsedInput.moduleId,
-        },
-        include: {
-          learningPath: {
-            select: {
-              id: true,
-              title: true,
-              category: true,
-              difficulty: true,
+      const [module, modulesList] = await Promise.allSettled([
+        prisma.module.findUnique({
+          where: {
+            id: parsedInput.moduleId,
+          },
+          include: {
+            learningPath: {
+              select: {
+                id: true,
+                title: true,
+                category: true,
+                difficulty: true,
+              },
+            },
+            challenges: {
+              orderBy: {
+                createdAt: 'asc',
+              },
+            },
+            codeExamples: {
+              orderBy: {
+                order: 'asc',
+              },
             },
           },
-          challenges: {
-            orderBy: {
-              createdAt: 'asc',
+        }),
+        prisma.learningPath.findUnique({
+          where: {
+            id: parsedInput.pathId,
+          },
+          select: {
+            id: true,
+            modules: {
+              orderBy: {
+                order: 'asc',
+              },
+              select: {
+                id: true
+              }
             },
           },
-          codeExamples: {
-            orderBy: {
-              order: 'asc',
-            },
-          },
-        },
-      });
+        }),
+      ])
 
-      if (!module) {
+      if (module.status === "rejected" || !module.value) {
         return null;
       }
 
@@ -492,7 +511,7 @@ export const getModuleById = actionClient
         where: {
           userId_learningPathId: {
             userId: session.user.id,
-            learningPathId: module.learningPath.id,
+            learningPathId: parsedInput.pathId,
           },
         },
       });
@@ -512,9 +531,10 @@ export const getModuleById = actionClient
       });
 
       return {
-        ...module,
+        ...module.value,
         userProgress: moduleProgress,
         isEnrolled: true,
+        modulesList: modulesList.status === "fulfilled" ? modulesList.value?.modules.map((m) => m.id) : [module.value.id]
       };
     } catch (error) {
       console.error('Error fetching module:', error);

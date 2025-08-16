@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment } from 'react';
+import { useRouter } from 'next/navigation';
+import { ModulesList } from './modules-list';
 
 interface ModuleNavigationProps {
   pathId: string;
@@ -31,17 +33,22 @@ interface ModuleNavigationProps {
     completionRate: number;
     timeSpent: number;
   } | null;
+  modulesList: string[]
 }
 
 export function ModuleNavigation({
   pathId,
   module,
   userProgress,
+  modulesList
 }: ModuleNavigationProps) {
   const progress = userProgress?.completionRate || 0;
   const isCompleted = userProgress?.status === 'COMPLETED';
   const timeSpent = userProgress?.timeSpent || 0;
+  const router = useRouter()
 
+  // const modulesList = typeof _modulesList === undefined ? [] : _modulesList
+  // console.warn(modulesList)
   return (
     <>
     <div className="w-full h-16 border-b bg-background px-6 flex items-center justify-between">
@@ -108,12 +115,16 @@ export function ModuleNavigation({
         <div className="h-6 w-px bg-border hidden min-[1000px]:flex" />
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
+          <Button disabled={modulesList.length === 0 || !modulesList[modulesList.indexOf(module.id) - 1]} 
+          onClick={() => router.push(`/learn/${pathId}/module/${modulesList[modulesList.indexOf(module.id) - 1]}`)}
+          variant="ghost" size="sm">
             <ArrowLeft className="w-4 h-4" />
             Previous
           </Button>
 
-          <Button variant="ghost" size="sm">
+          <Button disabled={!isCompleted || modulesList.length === 0 || !modulesList[modulesList.indexOf(module.id) + 1]}
+          onClick={() => router.push(`/learn/${pathId}/module/${modulesList[modulesList.indexOf(module.id) + 1]}`)}
+          variant="ghost" size="sm">
             Next
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>

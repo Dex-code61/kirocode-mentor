@@ -1,54 +1,68 @@
-import { Suspense } from 'react'
-import { notFound, redirect } from 'next/navigation'
-import { getModuleById } from '@/actions/cursus.actions'
-import { getServerSession } from '@/lib/auth-server'
-import { ModuleContent } from '@/components/learn/module-content'
-import { ModuleNavigation } from '@/components/learn/module-navigation'
-import { ModuleSidebar } from '@/components/learn/module-sidebar'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Suspense } from 'react';
+import { notFound, redirect } from 'next/navigation';
+import { getModuleById } from '@/actions/cursus.actions';
+import { getServerSession } from '@/lib/auth-server';
+import { ModuleContent } from '@/components/learn/module-content';
+import { ModuleNavigation } from '@/components/learn/module-navigation';
+import { ModuleSidebar } from '@/components/learn/module-sidebar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ModulePageProps {
-  params: {
-    pathId: string
-    moduleId: string
-  }
+  params: Promise<{
+    pathId: string;
+    moduleId: string;
+  }>;
 }
 
-export default async function ModulePage({ params }: ModulePageProps) {
+export default async function ModulePage({ params: _params }: ModulePageProps) {
+  const params = await _params;
   return (
     <div className="min-h-screen bg-background">
       <Suspense fallback={<ModulePageSkeleton />}>
         <ModulePageContent pathId={params.pathId} moduleId={params.moduleId} />
       </Suspense>
     </div>
-  )
+  );
 }
 
-async function ModulePageContent({ pathId, moduleId }: { pathId: string, moduleId: string }) {
-  const session = await getServerSession()
-  
+async function ModulePageContent({
+  pathId,
+  moduleId,
+}: {
+  pathId: string;
+  moduleId: string;
+}) {
+  const session = await getServerSession();
+
   if (!session?.user?.id) {
-    redirect('/auth/signin')
+    redirect('/auth/signin');
   }
 
-  const result = await getModuleById({ moduleId })
-  
+  const result = await getModuleById({ moduleId, pathId });
+
   if (!result?.data) {
-    notFound()
+    notFound();
   }
 
-  const module = result.data
+  const { modulesList, ...module } = result.data;
+
+  // Vérifier que le module a un ID valide
+  if (!module.id) {
+    notFound();
+  }
 
   if (!module.isEnrolled) {
-    redirect(`/learn/${pathId}/unauthorized`)
+    redirect(`/learn/${pathId}/unauthorized`);
   }
 
+  
   return (
     <div className="w-full flex h-screen">
       {/* Main Content */}
       <div className="w-full flex flex-col">
         {/* Navigation Header */}
-        <ModuleNavigation 
+        <ModuleNavigation
+          modulesList={modulesList || []}
           pathId={pathId}
           module={module}
           userProgress={module.userProgress}
@@ -56,10 +70,7 @@ async function ModulePageContent({ pathId, moduleId }: { pathId: string, moduleI
 
         {/* Module Content */}
         <div className="overflow-auto">
-          <ModuleContent 
-            module={module}
-            userProgress={module.userProgress}
-          />
+          <ModuleContent module={module} userProgress={module.userProgress} />
         </div>
       </div>
 
@@ -72,7 +83,7 @@ async function ModulePageContent({ pathId, moduleId }: { pathId: string, moduleI
         />
       </div> */}
     </div>
-  )
+  );
 }
 
 function ModulePageSkeleton() {
@@ -108,20 +119,24 @@ function ModulePageSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export async function generateMetadata({ params }: ModulePageProps) {
-  const result = await getModuleById({ moduleId: params.moduleId })
-  
+export async function generateMetadata({ params: _params }: ModulePageProps) {
+  const params = await _params;
+  const result = await getModuleById({
+    moduleId: params.moduleId,
+    pathId: params.pathId,
+  });
+
   if (!result?.data) {
     return {
       title: 'Module | KiroCode Mentor',
-    }
+    };
   }
 
   return {
     title: `${result.data.title} | ${result.data.learningPath.title} | KiroCode Mentor`,
     description: result.data.description,
-  }
+  };
 }
