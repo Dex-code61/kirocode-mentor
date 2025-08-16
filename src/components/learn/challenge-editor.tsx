@@ -119,6 +119,7 @@ export const ChallengeEditor: React.FC<ChallengeEditorProps> = ({
   return (
     <div className="h-full p-4 sm:p-6">
       <EnhancedChallengeEditor
+      estimatedTime={challenge.estimatedTime}
         challengeId={challenge.id}
         initialCode={initialCode}
         language={challenge.language}

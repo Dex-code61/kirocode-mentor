@@ -31,9 +31,11 @@ import {
   TestConfiguration 
 } from '@/services/code-execution.service';
 import { toast } from 'sonner';
+import ChallengeTimeOut from './challenge-timeout';
 
 export interface EnhancedChallengeEditorProps {
   challengeId: string;
+  estimatedTime: number;
   initialCode?: string;
   language: string;
   unitTests?: string;
@@ -47,6 +49,7 @@ export interface EnhancedChallengeEditorProps {
 
 export const EnhancedChallengeEditor: React.FC<EnhancedChallengeEditorProps> = ({
   challengeId,
+  estimatedTime,
   initialCode = '',
   language,
   unitTests = '',
@@ -248,13 +251,13 @@ export const EnhancedChallengeEditor: React.FC<EnhancedChallengeEditorProps> = (
     <div className={`h-full flex flex-col ${className}`}>
       {/* Header avec les actions - Responsive */}
       <Card className="mb-4">
-        <CardHeader className="pb-3">
+        <CardHeader className="">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-base sm:text-lg flex items-center gap-2 flex-wrap">
+            {/* <CardTitle className="text-base sm:text-lg flex items-center gap-2 flex-wrap">
               <Badge variant="outline" className="text-xs">
                 {language.toUpperCase()}
               </Badge>
-              {/* <span className="hidden sm:inline">Enhanced Challenge Editor</span> */}
+              <span className="hidden sm:inline">Enhanced Challenge Editor</span>
               {unitTests && (
                 <Badge variant="secondary" className="text-xs flex items-center gap-1">
                   <TestTube className="w-3 h-3" />
@@ -283,7 +286,7 @@ export const EnhancedChallengeEditor: React.FC<EnhancedChallengeEditorProps> = (
                   )}
                 </div>
               )}
-            </CardTitle>
+            </CardTitle> */}
 
             <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
               <Button
@@ -338,6 +341,9 @@ export const EnhancedChallengeEditor: React.FC<EnhancedChallengeEditorProps> = (
                 {isSubmitting ? 'Submitting...' : 'Submit'}
               </Button>
             </div>
+            
+            {/* Compter le temps passé */}
+            <ChallengeTimeOut estimatedTime={8} challengeId={challengeId} />
           </div>
         </CardHeader>
       </Card>

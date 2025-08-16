@@ -545,7 +545,7 @@ export const getModuleById = actionClient
 export const getChallengeById = actionClient
   .inputSchema(
     z.object({
-      challengeId: z.string().min(1, 'Challenge ID is required'),
+      challengeId: z.cuid('Challenge ID is required'),
     })
   )
   .action(async ({ parsedInput }) => {
@@ -791,7 +791,8 @@ export const submitChallenge = actionClient
 export const updateModuleProgress = actionClient
   .inputSchema(
     z.object({
-      moduleId: z.string().min(1, 'Module ID is required'),
+      moduleId: z.cuid("Module ID is not valid").optional(),
+      challengeId: z.cuid('Module ID is not valid').optional(),
       status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED']).optional(),
       completionRate: z.number().min(0).max(100).optional(),
       timeSpent: z.number().min(0).optional(),
@@ -810,12 +811,43 @@ export const updateModuleProgress = actionClient
         throw new Error('Database connection error');
       }
 
+      if(!parsedInput.moduleId && parsedInput.challengeId){
+        console.error('Invalid request, ID not found');
+        throw new Error('Invalid request, ID not found');
+      }
+
+
+      const module = await prisma.module.findFirst({
+        where: {
+          OR: [
+            {
+              challenges: {
+                some: {
+                  id: parsedInput.challengeId
+                }
+              }
+            },
+            {
+              id: parsedInput.moduleId
+            }
+          ]
+        },
+        select: {
+          id: true
+        }
+      })
+
+      if (!module) {
+        console.error('Module not found instance is undefined');
+        throw new Error('Module not found error');
+      }
+
       // Update or create module progress
       const moduleProgress = await prisma.moduleProgress.upsert({
         where: {
           userId_moduleId: {
             userId: session.user.id,
-            moduleId: parsedInput.moduleId,
+            moduleId: module.id,
           },
         },
         update: {
@@ -833,7 +865,7 @@ export const updateModuleProgress = actionClient
         },
         create: {
           userId: session.user.id,
-          moduleId: parsedInput.moduleId,
+          moduleId: module.id,
           status: parsedInput.status || 'IN_PROGRESS',
           completionRate: parsedInput.completionRate || 0,
           timeSpent: parsedInput.timeSpent || 0,
@@ -860,3 +892,4 @@ export const updateModuleProgress = actionClient
       };
     }
   });
+

@@ -24,7 +24,7 @@ export const ChallengePageClient: React.FC<ChallengePageClientProps> = ({
   // Raccourci clavier pour ouvrir/fermer la sidebar (Ctrl/Cmd + \)
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key === '\\') {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
         event.preventDefault();
         setIsSidebarOpen(prev => !prev);
       }
